@@ -1,6 +1,6 @@
 import numpy as np
 
-from obsstools.cv.bbox.typing import BboxType, GenericBboxType, generic_to_strict
+from pybboxes.typing import BboxType, GenericBboxType, generic_to_strict
 
 
 def validate_yolo_bbox(bbox: GenericBboxType, strict: bool = True):
@@ -13,7 +13,7 @@ def validate_yolo_bbox(bbox: GenericBboxType, strict: bool = True):
         raise ValueError("Given width and height must be in range (0,1].")
     elif strict and (not w / 2 <= x_c <= 1 - w / 2 or not h / 2 <= y_c <= 1 - h / 2):
         raise ValueError(
-            "Given top-left point is out of bounds. To silently skip out of " "bounds cases pass 'strict=True'."
+            "Given top-left point is out of bounds. To silently skip out of bounds cases pass 'strict=False'."
         )
 
 

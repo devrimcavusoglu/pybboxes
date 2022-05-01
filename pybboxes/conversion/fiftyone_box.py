@@ -1,6 +1,6 @@
 import numpy as np
 
-from obsstools.cv.bbox.typing import BboxType, GenericBboxType, generic_to_strict
+from pybboxes.typing import BboxType, GenericBboxType, generic_to_strict
 
 
 def validate_fiftyone_bbox(bbox: GenericBboxType, strict: bool = True):
