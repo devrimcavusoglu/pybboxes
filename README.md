@@ -80,3 +80,7 @@ To format codebase,
 ## License
 
 Licensed under the [MIT](LICENSE) License.
+
+# TO DO
+
+- [ ] WIDERFACE dataset will be converted to yolo and xml format. 
