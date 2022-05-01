@@ -44,7 +44,7 @@ setuptools.setup(
     version=get_version(),
     author="Devrim Cavusoglu",
     license="MIT",
-    description="Evaluation toolkit for neural language generation.",
+    description="Light Weight Toolkit for Bounding Boxes",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/devrimcavusoglu/pybboxes",

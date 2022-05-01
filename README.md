@@ -1,6 +1,13 @@
-# PyBboxes
+<h1 align="center">PyBboxes</h1>
+<p align="center">
+<a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/v/pybboxes" alt="Python versions"></a>
+<br>
+<a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/pyversions/pybboxes" alt="Python versions"></a>
+<a href="https://github.com/devrimcavusoglu/pybboxes/actions/workflows/ci.yml"><img src="https://img.shields.io/github/workflow/status/devrimcavusoglu/pybboxes/Tests" alt="DOI"></a>
+<a href="https://github.com/devrimcavusoglu/pybboxes/blob/main/LICENSE"><img src="https://img.shields.io/github/license/devrimcavusoglu/pybboxes" alt="Python versions"></a>
+</p>
 
-Python Toolkit for Bounding Boxes providing conversion between bounding box types. Supported bounding box types:
+Light weight toolkit for bounding boxes providing conversion between bounding box types and simple computations. Supported bounding box types:
 
 - **albumentations** : [Albumentations Format](https://albumentations.ai/docs/getting_started/bounding_boxes_augmentation/#albumentations)
 - **coco** : [COCO (Common Objects in Context)](http://cocodataset.org/)
