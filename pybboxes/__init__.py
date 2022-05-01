@@ -1,2 +1,4 @@
-from obsstools.cv.bbox.area import *
-from obsstools.cv.bbox.convert import convert_bbox
+from pybboxes.area import *
+from pybboxes.convert import convert_bbox
+
+__version__ = "0.0.1"

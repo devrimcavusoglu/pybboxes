@@ -1,6 +1,6 @@
 import importlib
 
-from obsstools.cv.bbox.typing import BboxType, GenericBboxType
+from pybboxes.typing import BboxType, GenericBboxType
 
 
 def convert_bbox(bbox: GenericBboxType, from_type: str, to_type: str, **kwargs) -> BboxType:
@@ -17,9 +17,9 @@ def convert_bbox(bbox: GenericBboxType, from_type: str, to_type: str, **kwargs) 
         Bounding box in type `to_type`.
     """
     if from_type == to_type:
-        raise ValueError("'from_type' and 'to_type' cannot be equal.")
+        return bbox
 
-    modules_root = "obsstools.cv.bbox"
+    modules_root = "pybboxes.conversion"
     if from_type != "voc":
         source_module = importlib.import_module(f"{modules_root}.{from_type}_box")
         source_to_voc = getattr(source_module, f"{from_type}_bbox_to_voc_bbox")

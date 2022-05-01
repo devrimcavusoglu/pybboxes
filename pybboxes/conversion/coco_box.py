@@ -1,6 +1,6 @@
 import numpy as np
 
-from obsstools.cv.bbox.typing import BboxType, GenericBboxType, generic_to_strict
+from pybboxes.typing import BboxType, GenericBboxType, generic_to_strict
 
 
 def validate_coco_bbox(bbox: GenericBboxType, strict: bool = True):
@@ -11,7 +11,7 @@ def validate_coco_bbox(bbox: GenericBboxType, strict: bool = True):
     x_tl, y_tl, w, h = bbox
     if w <= 0 or h <= 0:
         raise ValueError("Given width and height must be greater than 0.")
-    elif strict and ((x_tl < 0 or y_tl < 0) or (x_tl > w or y_tl > h)):
+    elif strict and (x_tl < 0 or y_tl < 0):
         raise ValueError("Given top-left point is out of bounds.")
 
 
