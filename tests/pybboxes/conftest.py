@@ -14,13 +14,8 @@ from tests.utils import load_json
 
 
 @pytest.fixture(scope="package")
-def image_width():
-    return 640
-
-
-@pytest.fixture(scope="package")
-def image_height():
-    return 480
+def image_size():
+    return 640, 480
 
 
 @pytest.fixture(scope="package")

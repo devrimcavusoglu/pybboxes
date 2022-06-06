@@ -1,9 +1,5 @@
-import numpy as np
-
-from pybboxes.conversion.coco_box import coco_bbox_to_voc_bbox
-from pybboxes.conversion.voc_box import validate_voc_bbox
-from pybboxes.convert import convert_bbox
-from pybboxes.typing import GenericBboxType
+from pybboxes._typing import GenericBboxType
+from pybboxes.types.bbox import load_bbox
 
 
 def compute_intersection(bbox1: GenericBboxType, bbox2: GenericBboxType, bbox_type: str = "coco", **kwargs):
@@ -18,17 +14,9 @@ def compute_intersection(bbox1: GenericBboxType, bbox2: GenericBboxType, bbox_ty
     Returns:
         Intersection area if bounding boxes intersect, 0 otherwise.
     """
-    bbox1 = convert_bbox(bbox1, from_type=bbox_type, to_type="voc", **kwargs)
-    bbox2 = convert_bbox(bbox2, from_type=bbox_type, to_type="voc", **kwargs)
-    validate_voc_bbox(bbox1)
-    validate_voc_bbox(bbox2)
-    x_tl, y_tl = np.maximum(bbox1[:2], bbox2[:2])
-    x_br, y_br = np.minimum(bbox1[2:], bbox2[2:])
-    if x_tl >= x_br or y_tl >= y_br:
-        return 0
-    width = x_br - x_tl
-    height = y_br - y_tl
-    return width * height
+    bbox1 = load_bbox(name=bbox_type, values=bbox1, **kwargs)
+    bbox2 = load_bbox(name=bbox_type, values=bbox2, **kwargs)
+    return bbox1 * bbox2
 
 
 def compute_area(bbox: GenericBboxType, bbox_type: str = "coco", **kwargs):
