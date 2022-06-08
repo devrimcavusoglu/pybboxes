@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Union, final
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -65,7 +65,7 @@ class BaseBoundingBox(Box, ABC):
         self.strict = strict
         v1, v2, v3, v4 = self._correct_value_types(v1, v2, v3, v4)
         self._validate_values(v1, v2, v3, v4)
-        self._set_values(v1, v2, v3, v4)
+        self.__set_values(v1, v2, v3, v4)
         voc_values = self.to_voc(return_values=True)
         super(BaseBoundingBox, self).__init__(*voc_values)
 
@@ -96,8 +96,10 @@ class BaseBoundingBox(Box, ABC):
     def _validate_values(self, *values):
         pass
 
-    @final
-    def _set_values(self, *values):
+    def __set_values(self, *values):
+        """
+        This method is intended to be "final", and should not be overridden in child classes.
+        """
         self._values = values
 
     def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
@@ -130,8 +132,10 @@ class BaseBoundingBox(Box, ABC):
         pass
 
     @classmethod
-    @final
     def from_array(cls, ar: Union[Tuple, List, np.ndarray], **kwargs):
+        """
+        This method is intended to be "final", and should not be overridden in child classes.
+        """
         if len(ar) != 4:
             raise ValueError(f"Given array must be length of 4, got length {len(ar)}.")
         return cls(*ar, **kwargs)
