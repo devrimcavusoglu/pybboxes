@@ -1,9 +1,43 @@
-import numpy as np
+from typing import Tuple, Union
 
-from pybboxes.conversion.coco_box import coco_bbox_to_voc_bbox
-from pybboxes.conversion.voc_box import validate_voc_bbox
-from pybboxes.convert import convert_bbox
-from pybboxes.typing import GenericBboxType
+from pybboxes.types.base import BaseBoundingBox
+from pybboxes.types.bbox import load_bbox
+from pybboxes.typing import BboxType, GenericBboxType
+
+
+def convert_bbox(
+    bbox: GenericBboxType,
+    from_type: str = None,
+    to_type: str = None,
+    image_size: Tuple[int, int] = None,
+    return_values: bool = True,
+    **kwargs,
+) -> Union[BboxType, BaseBoundingBox]:
+    """
+    Converts given bbox with given `from_type` to given `to_type`. It uses VOC format
+    as an intermediate format.
+
+    Args:
+        bbox: (generic) Bounding box.
+        from_type: (str) Type/Format of the given bounding box.
+        to_type: (str) Type/Format of the resulting bounding box.
+        image_size: (tuple(int,int)) Image size as (w, h) tuple, it is required if the one side of the
+            types requires scaling.
+        return_values: (bool) Whether to return values as a Tuple, or BoundingBox object.
+            True by default for compatibility purposes.
+
+    Return:
+        Bounding box in type `to_type`.
+    """
+    if not isinstance(bbox, BaseBoundingBox):
+        if not from_type:
+            raise ValueError("if `bbox` is not a BoundingBox object, `from_type` is required.")
+        bbox = load_bbox(name=from_type, values=bbox, image_size=image_size, **kwargs)
+    source_to_target = getattr(bbox, f"to_{to_type}")
+    target_bbox = source_to_target()
+    if return_values:
+        return target_bbox.values
+    return target_bbox
 
 
 def compute_intersection(bbox1: GenericBboxType, bbox2: GenericBboxType, bbox_type: str = "coco", **kwargs):
@@ -18,17 +52,9 @@ def compute_intersection(bbox1: GenericBboxType, bbox2: GenericBboxType, bbox_ty
     Returns:
         Intersection area if bounding boxes intersect, 0 otherwise.
     """
-    bbox1 = convert_bbox(bbox1, from_type=bbox_type, to_type="voc", **kwargs)
-    bbox2 = convert_bbox(bbox2, from_type=bbox_type, to_type="voc", **kwargs)
-    validate_voc_bbox(bbox1)
-    validate_voc_bbox(bbox2)
-    x_tl, y_tl = np.maximum(bbox1[:2], bbox2[:2])
-    x_br, y_br = np.minimum(bbox1[2:], bbox2[2:])
-    if x_tl >= x_br or y_tl >= y_br:
-        return 0
-    width = x_br - x_tl
-    height = y_br - y_tl
-    return width * height
+    bbox1 = load_bbox(name=bbox_type, values=bbox1, **kwargs)
+    bbox2 = load_bbox(name=bbox_type, values=bbox2, **kwargs)
+    return bbox1 * bbox2
 
 
 def compute_area(bbox: GenericBboxType, bbox_type: str = "coco", **kwargs):
