@@ -60,23 +60,21 @@ class BoundingBox(BaseBoundingBox):
             name, values=self.values, image_size=self.image_size, return_values=return_values, from_voc=True
         )
 
-    def to_albumentations(
-        self, return_values: bool = False
-    ) -> Union[Tuple[int, int, int, int], "AlbumentationsBoundingBox"]:
+    def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self._to_bbox_type("albumentations", return_values)
 
-    def to_coco(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "CocoBoundingBox"]:
+    def to_coco(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self._to_bbox_type("coco", return_values)
 
-    def to_fiftyone(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "FiftyoneBoundingBox"]:
+    def to_fiftyone(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self._to_bbox_type("fiftyone", return_values)
 
-    def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "VocBoundingBox"]:
+    def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         if return_values:
             return self.values
         return self
 
-    def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "YoloBoundingBox"]:
+    def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self._to_bbox_type("yolo", return_values)
 
     @classmethod

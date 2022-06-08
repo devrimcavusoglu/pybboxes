@@ -100,22 +100,20 @@ class BaseBoundingBox(Box, ABC):
     def _set_values(self, *values):
         self._values = values
 
-    def to_albumentations(
-        self, return_values: bool = False
-    ) -> Union[Tuple[int, int, int, int], "AlbumentationsBoundingBox"]:
+    def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_albumentations(return_values)
 
-    def to_coco(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "CocoBoundingBox"]:
+    def to_coco(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_coco(return_values)
 
-    def to_fiftyone(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "FiftyoneBoundingBox"]:
+    def to_fiftyone(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_fiftyone(return_values)
 
     @abstractmethod
     def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         pass
 
-    def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "YoloBoundingBox"]:
+    def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_yolo(return_values)
 
     @classmethod
