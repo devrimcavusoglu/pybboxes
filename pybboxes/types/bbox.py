@@ -56,7 +56,9 @@ class BoundingBox(BaseBoundingBox):
             )
 
     def _to_bbox_type(self, name: str, return_values: bool) -> BaseBoundingBox:
-        return load_bbox(name, values=self.values, image_size=self.image_size, return_values=return_values, from_voc=True)
+        return load_bbox(
+            name, values=self.values, image_size=self.image_size, return_values=return_values, from_voc=True
+        )
 
     def to_albumentations(
         self, return_values: bool = False
@@ -94,6 +96,16 @@ class BoundingBox(BaseBoundingBox):
         cls, x_tl: float, y_tl: float, x_br: float, y_br: float, image_size: Tuple[int, int] = None, strict: bool = True
     ):
         return load_bbox("albumentations", values=(x_tl, y_tl, x_br, y_br), image_size=image_size, strict=strict)
+
+    @classmethod
+    def from_coco(cls, x_tl: int, y_tl: int, w: int, h: int, image_size: Tuple[int, int] = None, strict: bool = True):
+        return load_bbox("coco", values=(x_tl, y_tl, w, h), image_size=image_size, strict=strict)
+
+    @classmethod
+    def from_fiftyone(
+        cls, x_tl: float, y_tl: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = True
+    ):
+        return load_bbox("fiftyone", values=(x_tl, y_tl, w, h), image_size=image_size, strict=strict)
 
     @classmethod
     def from_yolo(

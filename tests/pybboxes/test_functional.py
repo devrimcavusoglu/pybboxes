@@ -1,5 +1,4 @@
-from pybboxes import convert_bbox
-from pybboxes.functional import compute_area
+from pybboxes.functional import compute_area, convert_bbox
 from tests.utils import assert_almost_equal
 
 
