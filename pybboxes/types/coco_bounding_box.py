@@ -2,6 +2,7 @@ from typing import Tuple, Union
 
 from pybboxes.types.base import BaseBoundingBox
 from pybboxes.types.bbox import BoundingBox
+from pybboxes.functional import convert_bbox
 
 
 class CocoBoundingBox(BaseBoundingBox):
@@ -37,6 +38,27 @@ class CocoBoundingBox(BaseBoundingBox):
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)
+    
+    def shift(self, horizontal_threshold: float, vertical_threshold: float) -> "CocoBoundingBox":
+        """Returns a new bounding box shifted by the given thresholds. The new
+        bounding box has same image shape, and other properties as the current
+        object.
+
+        Parameters
+        ----------
+        horizontal_threshold : float
+            The amount to be shifted in the horizontal axis.
+        vertical_threshold : float
+            The amount to be shifted in the vertical axis.
+
+        Returns
+        -------
+        CocoBoundingBox
+            The new bounding box.
+        """
+        x_tl, y_tl, x_br, y_br = self.to_voc(return_values=True)
+        
+        return CocoBoundingBox.from_voc(x_tl + horizontal_threshold, y_tl + vertical_threshold, x_br + horizontal_threshold, y_br + vertical_threshold, self.image_size, self.strict)
 
     @classmethod
     def from_voc(

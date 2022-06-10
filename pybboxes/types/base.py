@@ -117,6 +117,10 @@ class BaseBoundingBox(Box, ABC):
 
     def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_yolo(return_values)
+    
+    @abstractmethod
+    def shift(self, horizontal_threshold: float, vertical_threshold: float) -> "BaseBoundingBox":
+        pass
 
     @classmethod
     @abstractmethod
