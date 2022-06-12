@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, FiftyoneBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -15,6 +15,11 @@ def fiftyone_bounding_box2(fiftyone_bbox, image_size):
     np.random.seed(42)
     fiftyone_bbox2 = fiftyone_bbox + np.random.uniform(-0.05, 0.05, size=4)
     return BoundingBox.from_fiftyone(*fiftyone_bbox2, image_size=image_size)
+
+
+@pytest.fixture
+def fiftyone_multi_array_zeroth():
+    return 0.29963209507789, 0.760571445127933, 0.024769205341163492, 0.014107127518591313
 
 
 @pytest.fixture(scope="function")
@@ -47,6 +52,14 @@ def test_to_voc(fiftyone_bounding_box, voc_bbox):
 def test_to_yolo(fiftyone_bounding_box, yolo_bbox):
     fiftyone2yolo_bbox = fiftyone_bounding_box.to_yolo()
     assert_almost_equal(actual=list(fiftyone2yolo_bbox.values), desired=yolo_bbox)
+
+
+def test_from_array(multiple_fiftyone_bboxes, image_size, expected_multiple_bbox_shape, fiftyone_multi_array_zeroth):
+    fo_boxes = FiftyoneBoundingBox.from_array(multiple_fiftyone_bboxes, image_size=image_size)
+    assert_almost_equal(actual=fo_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=fo_boxes.flatten()[0].values, desired=fiftyone_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 def test_area_computations(fiftyone_bounding_box, fiftyone_bounding_box2, fiftyone_area_computations_expected_output):
