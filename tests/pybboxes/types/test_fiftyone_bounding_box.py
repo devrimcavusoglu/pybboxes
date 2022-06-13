@@ -29,6 +29,14 @@ def fiftyone_area_computations_expected_output():
     }
 
 
+def test_shift(fiftyone_bounding_box, bbox_shift_amount):
+    actual_output = fiftyone_bounding_box.shift(bbox_shift_amount)
+    x_tl, y_tl, w, h = fiftyone_bounding_box.values
+    desired = (x_tl + bbox_shift_amount[0], y_tl + bbox_shift_amount[1], w, h)
+
+    assert_almost_equal(actual=actual_output.values, desired=desired)
+
+
 def test_to_albumentations(fiftyone_bounding_box, albumentations_bbox):
     fiftyone2albumentations_bbox = fiftyone_bounding_box.to_albumentations()
     assert_almost_equal(actual=list(fiftyone2albumentations_bbox.values), desired=albumentations_bbox)

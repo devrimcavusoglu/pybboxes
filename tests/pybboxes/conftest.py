@@ -8,6 +8,7 @@ import os
 from typing import Optional
 
 import pytest
+from sentry_sdk import Scope
 
 from tests.pybboxes import EXPECTED_OUTPUTS
 from tests.utils import load_json
@@ -26,6 +27,11 @@ def bbox_area():
 @pytest.fixture(scope="package")
 def albumentations_bbox():
     return [0.153125, 0.71875, 0.65625, 0.9625]
+
+
+@pytest.fixture(scope="package")
+def bbox_shift_amount():
+    return (0.05, 0.05)
 
 
 @pytest.fixture(scope="package")

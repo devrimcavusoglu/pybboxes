@@ -29,6 +29,14 @@ def yolo_area_computations_expected_output():
     }
 
 
+def test_shift(yolo_bounding_box, bbox_shift_amount):
+    actual_output = yolo_bounding_box.shift(bbox_shift_amount)
+    x_tl, y_tl, w, h = yolo_bounding_box.values
+    desired = (x_tl + bbox_shift_amount[0], y_tl + bbox_shift_amount[1], w, h)
+
+    assert_almost_equal(actual=actual_output.values, desired=desired)
+
+
 def test_to_albumentations(yolo_bounding_box, albumentations_bbox):
     yolo2albumentations_bbox = yolo_bounding_box.to_albumentations()
     assert_almost_equal(actual=list(yolo2albumentations_bbox.values), desired=albumentations_bbox)

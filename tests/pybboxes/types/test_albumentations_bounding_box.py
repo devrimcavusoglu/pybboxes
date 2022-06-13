@@ -34,6 +34,20 @@ def test_to_coco(albumentations_bounding_box, coco_bbox):
     assert_almost_equal(actual=list(alb2coco_bbox.values), desired=coco_bbox)
 
 
+def test_shift(albumentations_bounding_box, bbox_shift_amount):
+    actual_output = albumentations_bounding_box.shift(bbox_shift_amount)
+
+    x_tl, y_tl, x_br, y_br = albumentations_bounding_box.values
+    desired = [
+        x_tl + bbox_shift_amount[0],
+        y_tl + bbox_shift_amount[1],
+        x_br + bbox_shift_amount[0],
+        y_br + bbox_shift_amount[1],
+    ]
+
+    assert_almost_equal(actual=actual_output.values, desired=desired)
+
+
 def test_to_fiftyone(albumentations_bounding_box, fiftyone_bbox):
     alb2fiftyone_bbox = albumentations_bounding_box.to_fiftyone()
     assert_almost_equal(actual=list(alb2fiftyone_bbox.values), desired=fiftyone_bbox)
