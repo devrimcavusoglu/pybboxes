@@ -139,6 +139,16 @@ pbf.compute_area(coco_bbox, bbox_type="coco")  # 12
 pbf.compute_area(voc_bbox, bbox_type="voc")  # 4
 ```
 
+## Contributing
+
+### Installation
+
+Install the package as follows, which will set you ready for the development mode.
+
+```shell
+pip install -e .[dev]
+```
+
 ### Tests
 
 To tests simply run.
