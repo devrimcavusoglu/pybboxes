@@ -119,7 +119,19 @@ class BaseBoundingBox(Box, ABC):
         return self.to_voc().to_yolo(return_values)
     
     @abstractmethod
-    def shift(self, horizontal_threshold: float, vertical_threshold: float) -> "BaseBoundingBox":
+    def shift(self, threshold: Tuple[int, int]) -> "BaseBoundingBox":
+        """Perform a shift operation on the bounding box, and return a new bounding
+        box. 
+        
+        Args:
+            threshold: The amount to shift the bounding box. The first value is the
+                amount to shift the x-coordinate, and the second value is the
+                amount to shift the y-coordinate.
+        """
+        pass
+
+    @abstractmethod
+    def scale(self, horizontal_factor: float, vertical_factor: float) -> "BaseBoundingBox":
         pass
 
     @classmethod
