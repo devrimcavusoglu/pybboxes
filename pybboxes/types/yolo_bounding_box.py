@@ -57,9 +57,15 @@ class YoloBoundingBox(BaseBoundingBox):
         """
         x_tl, y_tl, x_br, y_br = self.to_voc(return_values=True)
         horizontal_threshold, vertical_threshold = threshold
-        
-        return YoloBoundingBox.from_voc(x_tl + horizontal_threshold, y_tl + vertical_threshold, x_br + horizontal_threshold, y_br + vertical_threshold, self.image_size, self.strict)
 
+        return YoloBoundingBox.from_voc(
+            x_tl + horizontal_threshold,
+            y_tl + vertical_threshold,
+            x_br + horizontal_threshold,
+            y_br + vertical_threshold,
+            self.image_size,
+            self.strict,
+        )
 
     @classmethod
     def from_voc(
