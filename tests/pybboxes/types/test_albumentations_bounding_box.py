@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import AlbumentationsBoundingBox, BoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -15,6 +15,11 @@ def albumentations_bounding_box2(albumentations_bbox, image_size):
     np.random.seed(42)
     albumentations_bbox2 = albumentations_bbox + np.random.uniform(-0.05, 0.05, size=4)
     return BoundingBox.from_albumentations(*albumentations_bbox2, image_size=image_size)
+
+
+@pytest.fixture
+def albumentations_multi_array_zeroth():
+    return 0.18727005942368125, 0.4753571532049581, 0.5619230133529087, 0.5352678187964783
 
 
 @pytest.fixture(scope="function")
@@ -47,6 +52,16 @@ def test_to_voc(albumentations_bounding_box, voc_bbox):
 def test_to_yolo(albumentations_bounding_box, yolo_bbox):
     alb2yolo_bbox = albumentations_bounding_box.to_yolo()
     assert_almost_equal(actual=list(alb2yolo_bbox.values), desired=yolo_bbox)
+
+
+def test_from_array(
+    multiple_albumentations_bboxes, image_size, expected_multiple_bbox_shape, albumentations_multi_array_zeroth
+):
+    alb_boxes = AlbumentationsBoundingBox.from_array(multiple_albumentations_bboxes, image_size=image_size)
+    assert_almost_equal(actual=alb_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        alb_boxes.flatten()[0].values, albumentations_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 def test_area_computations(

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, YoloBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -15,6 +15,11 @@ def yolo_bounding_box2(yolo_bbox, image_size):
     np.random.seed(42)
     yolo_bbox2 = yolo_bbox + np.random.uniform(-0.05, 0.05, size=4)
     return BoundingBox.from_yolo(*yolo_bbox2, image_size=image_size)
+
+
+@pytest.fixture()
+def yolo_multi_array_zeroth():
+    return 0.22472407130841748, 0.5704285838459496, 0.024769205341163492, 0.014107127518591313
 
 
 @pytest.fixture(scope="function")
@@ -47,6 +52,14 @@ def test_to_fiftyone(yolo_bounding_box, fiftyone_bbox):
 def test_to_voc(yolo_bounding_box, voc_bbox):
     yolo2voc_bbox = yolo_bounding_box.to_voc()
     assert_almost_equal(actual=list(yolo2voc_bbox.values), desired=voc_bbox)
+
+
+def test_from_array(multiple_yolo_bboxes, image_size, expected_multiple_bbox_shape, yolo_multi_array_zeroth):
+    yolo_boxes = YoloBoundingBox.from_array(multiple_yolo_bboxes, image_size=image_size)
+    assert_almost_equal(actual=yolo_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=yolo_boxes.flatten()[0].values, desired=yolo_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 def test_area_computations(yolo_bounding_box, yolo_bounding_box2, yolo_area_computations_expected_output):

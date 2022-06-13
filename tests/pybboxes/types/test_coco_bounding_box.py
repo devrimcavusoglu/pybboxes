@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, CocoBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -15,6 +15,11 @@ def coco_bounding_box2(coco_bbox, image_size):
     np.random.seed(42)
     coco_bbox2 = coco_bbox + np.random.randint(-5, 5, size=4)
     return BoundingBox.from_coco(*coco_bbox2, image_size=image_size)
+
+
+@pytest.fixture
+def coco_multi_array_zeroth():
+    return 102, 435, 20, 18
 
 
 @pytest.fixture(scope="function")
@@ -47,6 +52,14 @@ def test_to_voc(coco_bounding_box, voc_bbox):
 def test_to_yolo(coco_bounding_box, yolo_bbox):
     coco2yolo_bbox = coco_bounding_box.to_yolo()
     assert_almost_equal(actual=list(coco2yolo_bbox.values), desired=yolo_bbox)
+
+
+def test_from_array(multiple_coco_bboxes, image_size, expected_multiple_bbox_shape, coco_multi_array_zeroth):
+    coco_boxes = CocoBoundingBox.from_array(multiple_coco_bboxes, image_size=image_size)
+    assert_almost_equal(actual=coco_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=coco_boxes.flatten()[0].values, desired=coco_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 def test_area_computations(coco_bounding_box, coco_bounding_box2, coco_area_computations_expected_output):
