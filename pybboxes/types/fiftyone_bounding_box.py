@@ -53,10 +53,10 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         FiftyoneBoundingBox
             The new bounding box.
         """
-        x_tl, y_tl, x_br, y_br = self.to_voc(return_values=True)
+        x_tl, y_tl, x_br, y_br = self.values
         horizontal_threshold, vertical_threshold = threshold
 
-        return FiftyoneBoundingBox.from_voc(
+        return FiftyoneBoundingBox(
             x_tl + horizontal_threshold,
             y_tl + vertical_threshold,
             x_br + horizontal_threshold,

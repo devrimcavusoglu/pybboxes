@@ -34,6 +34,8 @@ def test_shift(yolo_bounding_box, bbox_shift_amount):
     x_tl, y_tl, w, h = yolo_bounding_box.values
     desired = (x_tl + bbox_shift_amount[0], y_tl + bbox_shift_amount[1], w, h)
 
+    print(actual_output, desired, 'Yolo Bounding Box')
+
     assert_almost_equal(actual=actual_output.values, desired=desired)
 
 

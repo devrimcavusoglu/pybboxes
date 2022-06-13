@@ -55,14 +55,14 @@ class YoloBoundingBox(BaseBoundingBox):
         YoloBoundingBox
             The new bounding box.
         """
-        x_tl, y_tl, x_br, y_br = self.to_voc(return_values=True)
+        x_tl, y_tl, w, h = self.values
         horizontal_threshold, vertical_threshold = threshold
 
-        return YoloBoundingBox.from_voc(
+        return YoloBoundingBox(
             x_tl + horizontal_threshold,
             y_tl + vertical_threshold,
-            x_br + horizontal_threshold,
-            y_br + vertical_threshold,
+            w,
+            h,
             self.image_size,
             self.strict,
         )

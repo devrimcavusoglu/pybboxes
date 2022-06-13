@@ -31,7 +31,7 @@ def albumentations_bbox():
 
 @pytest.fixture(scope="package")
 def bbox_shift_amount():
-    return (0.05, 0.05)
+    return (2, 2)
 
 
 @pytest.fixture(scope="package")

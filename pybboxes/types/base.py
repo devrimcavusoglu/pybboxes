@@ -118,7 +118,7 @@ class BaseBoundingBox(Box, ABC):
     def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_yolo(return_values)
 
-    @abstractmethod
+    # @abstractmethod
     def shift(self, threshold: Tuple[int, int]) -> "BaseBoundingBox":
         """Perform a shift operation on the bounding box, and return a new bounding
         box.
@@ -128,10 +128,6 @@ class BaseBoundingBox(Box, ABC):
                 amount to shift the x-coordinate, and the second value is the
                 amount to shift the y-coordinate.
         """
-        pass
-
-    @abstractmethod
-    def scale(self, horizontal_factor: float, vertical_factor: float) -> "BaseBoundingBox":
         pass
 
     @classmethod

@@ -54,9 +54,9 @@ class AlbumentationsBoundingBox(BaseBoundingBox):
             The new bounding box.
         """
         horizontal_threshold, vertical_threshold = threshold
-        x_tl, y_tl, x_br, y_br = self.to_voc(return_values=True)
+        x_tl, y_tl, x_br, y_br = self.values
 
-        return AlbumentationsBoundingBox.from_voc(
+        return AlbumentationsBoundingBox(
             x_tl + horizontal_threshold,
             y_tl + vertical_threshold,
             x_br + horizontal_threshold,

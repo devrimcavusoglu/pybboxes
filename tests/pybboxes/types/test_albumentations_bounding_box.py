@@ -45,7 +45,7 @@ def test_shift(albumentations_bounding_box, bbox_shift_amount):
         y_br + bbox_shift_amount[1],
     ]
 
-    assert_almost_equal(actual=actual_output.values, desired=desired)
+    assert_almost_equal(actual=list(actual_output.values), desired=desired)
 
 
 def test_to_fiftyone(albumentations_bounding_box, fiftyone_bbox):
