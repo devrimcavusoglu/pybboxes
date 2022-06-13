@@ -8,7 +8,7 @@ import os
 from typing import Optional
 
 import pytest
-from sentry_sdk import Scope
+
 
 from tests.pybboxes import EXPECTED_OUTPUTS
 from tests.utils import load_json
