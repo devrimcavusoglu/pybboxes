@@ -36,14 +36,14 @@ class FiftyoneBoundingBox(BaseBoundingBox):
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)
 
-    def shift(self, threshold: Tuple[int, int]) -> "FiftyoneBoundingBox":
+    def shift(self, threshold: Tuple[float, float]) -> "FiftyoneBoundingBox":
         """Returns a new bounding box shifted by the given thresholds. The new
         bounding box has same image shape, and other properties as the current
         object.
 
         Parameters
         ----------
-        threshold: Tuple[int, int]
+        threshold: Tuple[float, float]
             The amount to shift the bounding box. The first value is the
                 amount to shift the x-coordinate, and the second value is the
                 amount to shift the y-coordinate.
@@ -53,14 +53,14 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         FiftyoneBoundingBox
             The new bounding box.
         """
-        x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, w, h = self.values
         horizontal_threshold, vertical_threshold = threshold
 
         return FiftyoneBoundingBox(
             x_tl + horizontal_threshold,
             y_tl + vertical_threshold,
-            x_br + horizontal_threshold,
-            y_br + vertical_threshold,
+            w,
+            h,
             self.image_size,
             self.strict,
         )

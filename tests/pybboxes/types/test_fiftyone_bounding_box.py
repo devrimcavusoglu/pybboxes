@@ -29,10 +29,10 @@ def fiftyone_area_computations_expected_output():
     }
 
 
-def test_shift(fiftyone_bounding_box, bbox_shift_amount):
-    actual_output = fiftyone_bounding_box.shift(bbox_shift_amount)
+def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
+    actual_output = fiftyone_bounding_box.shift(normalized_bbox_shift_amount)
     x_tl, y_tl, w, h = fiftyone_bounding_box.values
-    desired = (x_tl + bbox_shift_amount[0], y_tl + bbox_shift_amount[1], w, h)
+    desired = (x_tl + normalized_bbox_shift_amount[0], y_tl + normalized_bbox_shift_amount[1], w, h)
 
     assert_almost_equal(actual=actual_output.values, desired=desired)
 

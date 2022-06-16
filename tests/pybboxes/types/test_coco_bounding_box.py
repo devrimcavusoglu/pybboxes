@@ -29,13 +29,13 @@ def coco_area_computations_expected_output():
     }
 
 
-def test_shift(coco_bounding_box, bbox_shift_amount):
-    actual_output = coco_bounding_box.shift(bbox_shift_amount)
+def test_shift(coco_bounding_box, unnormalized_bbox_shift_amount):
+    actual_output = coco_bounding_box.shift(unnormalized_bbox_shift_amount)
 
     x_tl, y_tl, w, h = list(coco_bounding_box.values)
-    desired = (x_tl + bbox_shift_amount[0], y_tl + bbox_shift_amount[1], w, h)
+    desired = (x_tl + unnormalized_bbox_shift_amount[0], y_tl + unnormalized_bbox_shift_amount[1], w, h)
 
-    assert_almost_equal(actual=list(actual_output.values), desired=desired)
+    assert_almost_equal(actual=list(actual_output.values), desired=list(desired))
 
 
 def test_to_coco(coco_bounding_box, albumentations_bbox):
