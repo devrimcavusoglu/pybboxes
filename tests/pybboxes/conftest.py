@@ -9,7 +9,6 @@ from typing import Optional
 
 import pytest
 
-
 from tests.pybboxes import EXPECTED_OUTPUTS
 from tests.utils import load_json
 
@@ -38,7 +37,7 @@ def unnormalized_bbox_shift_amount():
 def normalized_bbox_shift_amount():
     return (0.05, 0.03)
 
-    
+
 @pytest.fixture(scope="package")
 def coco_bbox():
     return [98, 345, 322, 117]
