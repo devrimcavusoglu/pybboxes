@@ -15,6 +15,12 @@ Light weight toolkit for bounding boxes providing conversion between bounding bo
 - **voc** : [Pascal VOC](http://host.robots.ox.ac.uk/pascal/VOC/)
 - **yolo** : [YOLO](https://github.com/ultralytics/yolov5)
 
+### Important Notice
+Support for Python<3.8 will be dropped starting version `0.2` though the development for Python3.6 and Python3.7 may 
+continue where it will be developed under version `0.1.x` for future versions. This may introduce; however, certain 
+discrepancies and/or unsupported operations in the `0.1.x` versions. To fully utilize and benefit from the entire 
+package, we recommend using Python3.8 at minimum (`Python>=3.8`).
+
 ## Installation
 
 Through pip (recommended),

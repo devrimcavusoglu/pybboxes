@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, VocBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -27,6 +27,11 @@ def voc_area_computations_expected_output():
         "ratio": 0.9884556855748544,
         "difference": 438,
     }
+
+
+def test_from_array(voc_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        VocBoundingBox.from_array(voc_bbox, image_size=image_size)
 
 
 def test_to_albumentations(voc_bounding_box, albumentations_bbox):

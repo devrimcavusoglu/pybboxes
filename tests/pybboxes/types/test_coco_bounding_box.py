@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, CocoBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -27,6 +27,11 @@ def coco_area_computations_expected_output():
         "ratio": 1.0023946360153257,
         "difference": 1080,
     }
+
+
+def test_from_array(coco_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        CocoBoundingBox.from_array(coco_bbox, image_size=image_size)
 
 
 def test_to_coco(coco_bounding_box, albumentations_bbox):
