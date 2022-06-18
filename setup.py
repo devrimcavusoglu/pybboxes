@@ -25,7 +25,7 @@ def get_version():
 
 _DEV_REQUIREMENTS = [
     "black==22.3.0.",
-    "click==8.1.3",
+    "click==8.0.4",
     "deepdiff==5.5.0",
     "flake8==3.9.2",
     "isort==5.9.2",
@@ -49,7 +49,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/devrimcavusoglu/pybboxes",
     packages=setuptools.find_packages(exclude=["tests"]),
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     install_requires=get_requirements(),
     extras_require=extras,
     include_package_data=True,
@@ -59,6 +59,7 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
