@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, FiftyoneBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -27,6 +27,11 @@ def fiftyone_area_computations_expected_output():
         "ratio": 0.9266528925619835,
         "difference": 6967,
     }
+
+
+def test_from_array(fiftyone_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        FiftyoneBoundingBox.from_array(fiftyone_bbox, image_size=image_size)
 
 
 def test_to_albumentations(fiftyone_bounding_box, albumentations_bbox):

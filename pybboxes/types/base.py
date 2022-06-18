@@ -1,7 +1,10 @@
+import warnings
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Union
 
 import numpy as np
+
+from pybboxes.utils import find_stack_level
 
 
 class Box:
@@ -136,6 +139,13 @@ class BaseBoundingBox(Box, ABC):
         """
         This method is intended to be "final", and should not be overridden in child classes.
         """
+        warnings.warn(
+            "The functionality of the `from_array()` method is changed from only supporting a single box values to "
+            "support (arbitrary) n-dimensional array of box values starting from 0.2 onward "
+            "requiring Python3.8 or higher.",
+            FutureWarning,
+            stacklevel=find_stack_level(),
+        )
         if len(ar) != 4:
             raise ValueError(f"Given array must be length of 4, got length {len(ar)}.")
         return cls(*ar, **kwargs)

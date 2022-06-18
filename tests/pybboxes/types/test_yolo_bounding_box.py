@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import BoundingBox, YoloBoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -27,6 +27,11 @@ def yolo_area_computations_expected_output():
         "ratio": 0.9266528925619835,
         "difference": 6263,
     }
+
+
+def test_from_array(yolo_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        YoloBoundingBox.from_array(yolo_bbox, image_size=image_size)
 
 
 def test_to_albumentations(yolo_bounding_box, albumentations_bbox):
