@@ -55,6 +55,35 @@ class BoundingBox(BaseBoundingBox):
                 "Top-left axes cannot be negative. To silently skip out of bounds cases pass 'strict=False'."
             )
 
+    def shift(self, amount: Tuple[float, float]) -> "BoundingBox":
+        """Returns a new bounding box shifted by the given thresholds. The new
+        bounding box has same image shape, and other properties as the current
+        object.
+
+        Parameters
+        ----------
+        amount: Tuple[float, float]
+            The amount to shift the bounding box. The first value is the
+                amount to shift the x-coordinate, and the second value is the
+                amount to shift the y-coordinate.
+
+        Returns
+        -------
+        BoundingBox
+            The new bounding box.
+        """
+        x_tl, y_tl, x_br, y_br = self.values
+        horizontal_threshold, vertical_threshold = amount
+
+        return BoundingBox(
+            x_tl + horizontal_threshold,
+            y_tl + vertical_threshold,
+            x_br + horizontal_threshold,
+            y_br + vertical_threshold,
+            self.image_size,
+            self.strict,
+        )
+
     def _to_bbox_type(self, name: str, return_values: bool) -> BaseBoundingBox:
         return load_bbox(
             name, values=self.values, image_size=self.image_size, return_values=return_values, from_voc=True
