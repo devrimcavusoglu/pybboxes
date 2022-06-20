@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pybboxes import BoundingBox
+from pybboxes import AlbumentationsBoundingBox, BoundingBox
 from tests.utils import assert_almost_equal
 
 
@@ -27,6 +27,11 @@ def albumentations_area_computations_expected_output():
         "ratio": 1.092,
         "difference": 7084,
     }
+
+
+def test_from_array(albumentations_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        AlbumentationsBoundingBox.from_array(albumentations_bbox, image_size=image_size)
 
 
 def test_to_coco(albumentations_bounding_box, coco_bbox):
