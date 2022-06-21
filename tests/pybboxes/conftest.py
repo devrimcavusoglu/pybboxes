@@ -29,6 +29,16 @@ def albumentations_bbox():
 
 
 @pytest.fixture(scope="package")
+def unnormalized_bbox_shift_amount():
+    return (2, 2)
+
+
+@pytest.fixture(scope="package")
+def normalized_bbox_shift_amount():
+    return (0.05, 0.03)
+
+
+@pytest.fixture(scope="package")
 def coco_bbox():
     return [98, 345, 322, 117]
 

@@ -34,6 +34,35 @@ class AlbumentationsBoundingBox(BaseBoundingBox):
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)
 
+    def shift(self, amount: Tuple[float, float]) -> "AlbumentationsBoundingBox":
+        """Returns a new bounding box shifted by the given thresholds. The new
+        bounding box has same image shape, and other properties as the current
+        object.
+
+        Parameters
+        ----------
+        amount: Tuple[float, float]
+            The amount to shift the bounding box. The first value is the
+                amount to shift the x-coordinate, and the second value is the
+                amount to shift the y-coordinate.
+
+        Returns
+        -------
+        AlbumentationsBoundingBox
+            The new bounding box.
+        """
+        horizontal_shift, vertical_shift = amount
+        x_tl, y_tl, x_br, y_br = self.values
+
+        return AlbumentationsBoundingBox(
+            x_tl + horizontal_shift,
+            y_tl + vertical_shift,
+            x_br + horizontal_shift,
+            y_br + vertical_shift,
+            self.image_size,
+            self.strict,
+        )
+
     @classmethod
     def from_voc(
         cls,

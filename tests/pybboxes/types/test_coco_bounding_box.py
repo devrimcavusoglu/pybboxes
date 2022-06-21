@@ -29,6 +29,15 @@ def coco_area_computations_expected_output():
     }
 
 
+def test_shift(coco_bounding_box, unnormalized_bbox_shift_amount):
+    actual_output = coco_bounding_box.shift(unnormalized_bbox_shift_amount)
+
+    x_tl, y_tl, w, h = list(coco_bounding_box.values)
+    desired = (x_tl + unnormalized_bbox_shift_amount[0], y_tl + unnormalized_bbox_shift_amount[1], w, h)
+
+    assert_almost_equal(actual=list(actual_output.values), desired=list(desired))
+
+
 def test_from_array(coco_bbox, image_size):
     with pytest.warns(FutureWarning):
         CocoBoundingBox.from_array(coco_bbox, image_size=image_size)
