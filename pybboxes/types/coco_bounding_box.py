@@ -56,11 +56,11 @@ class CocoBoundingBox(BaseBoundingBox):
             The new bounding box.
         """
         x_tl, y_tl, w, h = self.values
-        horizontal_threshold, vertical_threshold = amount
+        horizontal_shift, vertical_shift = amount
 
         return CocoBoundingBox(
-            x_tl + horizontal_threshold,
-            y_tl + vertical_threshold,
+            x_tl + horizontal_shift,
+            y_tl + vertical_shift,
             w,
             h,
             self.image_size,

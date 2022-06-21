@@ -51,14 +51,14 @@ class AlbumentationsBoundingBox(BaseBoundingBox):
         AlbumentationsBoundingBox
             The new bounding box.
         """
-        horizontal_threshold, vertical_threshold = amount
+        horizontal_shift, vertical_shift = amount
         x_tl, y_tl, x_br, y_br = self.values
 
         return AlbumentationsBoundingBox(
-            x_tl + horizontal_threshold,
-            y_tl + vertical_threshold,
-            x_br + horizontal_threshold,
-            y_br + vertical_threshold,
+            x_tl + horizontal_shift,
+            y_tl + vertical_shift,
+            x_br + horizontal_shift,
+            y_br + vertical_shift,
             self.image_size,
             self.strict,
         )

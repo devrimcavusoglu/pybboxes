@@ -29,7 +29,6 @@ def fiftyone_area_computations_expected_output():
     }
 
 
-
 def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
     actual_output = fiftyone_bounding_box.shift(normalized_bbox_shift_amount)
     x_tl, y_tl, w, h = fiftyone_bounding_box.values
@@ -37,11 +36,10 @@ def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
 
     assert_almost_equal(actual=actual_output.values, desired=desired)
 
-    
+
 def test_from_array(fiftyone_bbox, image_size):
     with pytest.warns(FutureWarning):
         FiftyoneBoundingBox.from_array(fiftyone_bbox, image_size=image_size)
-
 
 
 def test_to_albumentations(fiftyone_bounding_box, albumentations_bbox):

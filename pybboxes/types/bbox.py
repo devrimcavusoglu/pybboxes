@@ -73,13 +73,13 @@ class BoundingBox(BaseBoundingBox):
             The new bounding box.
         """
         x_tl, y_tl, x_br, y_br = self.values
-        horizontal_threshold, vertical_threshold = amount
+        horizontal_shift, vertical_shift = amount
 
         return BoundingBox(
-            x_tl + horizontal_threshold,
-            y_tl + vertical_threshold,
-            x_br + horizontal_threshold,
-            y_br + vertical_threshold,
+            x_tl + horizontal_shift,
+            y_tl + vertical_shift,
+            x_br + horizontal_shift,
+            y_br + vertical_shift,
             self.image_size,
             self.strict,
         )

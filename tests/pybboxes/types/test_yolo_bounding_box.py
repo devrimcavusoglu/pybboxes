@@ -38,11 +38,10 @@ def test_shift(yolo_bounding_box, normalized_bbox_shift_amount):
 
     assert_almost_equal(actual=actual_output.values, desired=desired)
 
-    
+
 def test_from_array(yolo_bbox, image_size):
     with pytest.warns(FutureWarning):
         YoloBoundingBox.from_array(yolo_bbox, image_size=image_size)
-
 
 
 def test_to_albumentations(yolo_bounding_box, albumentations_bbox):
