@@ -7,7 +7,6 @@ from pybboxes.types.base import BaseBoundingBox
 def load_bbox(
     name: str, values, image_size: Tuple[int, int] = None, return_values: bool = False, from_voc: bool = False, **kwargs
 ) -> BaseBoundingBox:
-
     def pascalize(snake_string: str) -> str:
         return snake_string.title().replace("_", "")
 
