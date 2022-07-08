@@ -1,17 +1,19 @@
 from importlib import import_module
 from typing import Tuple, Union
 
-import humps
-
 from pybboxes.types.base import BaseBoundingBox
 
 
 def load_bbox(
     name: str, values, image_size: Tuple[int, int] = None, return_values: bool = False, from_voc: bool = False, **kwargs
 ) -> BaseBoundingBox:
+
+    def pascalize(snake_string: str) -> str:
+        return snake_string.title().replace("_", "")
+
     module_name = f"{name}_bounding_box"
     module_path = f"pybboxes.types.{module_name}"
-    klass_name = humps.pascalize(module_name)
+    klass_name = pascalize(module_name)
     module = import_module(module_path)
     klass = getattr(module, klass_name)
     if from_voc:
