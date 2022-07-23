@@ -1,4 +1,4 @@
-from pybboxes.types.bbox import BoundingBox
+from pybboxes.boxes.bbox import BoundingBox
 
 
 class VocBoundingBox(BoundingBox):

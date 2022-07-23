@@ -1,7 +1,7 @@
 from typing import Tuple, Union
 
-from pybboxes.types.base import BaseBoundingBox
-from pybboxes.types.bbox import BoundingBox
+from pybboxes.boxes.base import BaseBoundingBox
+from pybboxes.boxes.bbox import BoundingBox
 
 
 class CocoBoundingBox(BaseBoundingBox):
@@ -24,11 +24,17 @@ class CocoBoundingBox(BaseBoundingBox):
             raise ValueError("Given width and height must be greater than 0.")
         elif self.strict and (x_tl < 0 or y_tl < 0):
             raise ValueError("Given top-left point is out of bounds.")
-        elif self.strict and (
-            (image_width is not None and x_tl + w > image_width)
-            or (image_width is not None and y_tl + h > image_height)
+        elif (image_width is not None and x_tl + w > image_width) or (
+            image_width is not None and y_tl + h > image_height
         ):
-            raise ValueError("Given bounding box values is out of bounds.")
+            if self.strict:
+                raise ValueError(
+                    "Given bounding box values is out of bounds. "
+                    "To silently skip out of bounds cases pass 'strict=False'."
+                )
+            self._is_oob = True
+        elif not self.is_image_size_null():
+            self._is_oob = False
 
     def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BoundingBox"]:
         x_tl, y_tl, w, h = self.values

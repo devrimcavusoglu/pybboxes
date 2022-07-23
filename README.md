@@ -7,13 +7,26 @@
 <a href="https://github.com/devrimcavusoglu/pybboxes/blob/main/LICENSE"><img src="https://img.shields.io/github/license/devrimcavusoglu/pybboxes" alt="Python versions"></a>
 </p>
 
-Light weight toolkit for bounding boxes providing conversion between bounding box types and simple computations. Supported bounding box types:
+Light weight toolkit for bounding boxes providing conversion between bounding box types and simple computations. Supported bounding box types (<ins>italicized text indicates normalized values</ins>):
 
 - **albumentations** : [Albumentations Format](https://albumentations.ai/docs/getting_started/bounding_boxes_augmentation/#albumentations)
+  - **_[x-tl, y-tl, x-br, y-br]_** (Normalized VOC Format) Top-left coordinates & Bottom-right coordinates
 - **coco** : [COCO (Common Objects in Context)](http://cocodataset.org/)
+  - **[x-tl, y-tl, w, h]** Top-left corner & width & height
 - **fiftyone** : [FiftyOne](https://github.com/voxel51/fiftyone)
+  - **_[x-tl, y-tl, w, h]_** (Normalized COCO Format) Top-left coordinates & width & height
 - **voc** : [Pascal VOC](http://host.robots.ox.ac.uk/pascal/VOC/)
+  - **[x-tl, y-tl, x-br, y-br]** Top-left coordinates & Bottom-right coordinates
 - **yolo** : [YOLO](https://github.com/ultralytics/yolov5)
+  - **_[x-c, y-c, w, h]_** Center coordinates & width & height
+
+**Glossary**
+
+- **tl:** top-left
+- **br:** bottom-right
+- **h:** height
+- **w:** width
+- **c:** center
 
 ### Important Notice
 Support for Python<3.8 will be dropped starting version `0.2` though the development for Python3.6 and Python3.7 may 
@@ -45,6 +58,29 @@ coco_bbox = BoundingBox.from_coco(*my_coco_box)  # <[98 345 322 117] (322x117) |
 # or alternatively
 # coco_bbox = BoundingBox.from_array(my_coco_box)
 ```
+
+### Out of Bounds Boxes
+Pybboxes supports OOB boxes, there exists a keyword `strict` in both Box classes (construction) and in functional 
+modules. When `strict=True`, it does not allow out-of-bounds boxes to be constructed and raises an exception, while 
+it does allow out-of-bounds boxes to be constructed and used when `strict=False`. Also, there is a property `is_oob` 
+that indicates whether a particular bouding box is OOB or not. 
+
+**Important** Note that, if the return value for `is_oob` is `None`, then it indicates that OOB status is unknown 
+(e.g. image size required to determine, but not given). Thus, values `None` and `False` indicates different information.
+
+```python
+from pybboxes import BoundingBox
+
+image_size = (640, 480)
+my_coco_box = [98, 345, 580, 245]  # OOB box for 640x480
+coco_bbox = BoundingBox.from_coco(*my_coco_box, image_size=image_size)  # Exception
+# ValueError: Given bounding box values is out of bounds. To silently skip out of bounds cases pass 'strict=False'.
+
+coco_bbox = BoundingBox.from_coco(*my_coco_box, image_size=image_size, strict=False)  # No Exception
+coco_bbox.is_oob  # True
+```
+
+If you want to allow OOB, but still check OOB status, you should use `strict=False` and `is_oob` where needed.
 
 ### Conversion
 
@@ -100,7 +136,7 @@ coco_bbox2 = BoundingBox.from_coco(*my_coco_box2, image_size=(640, 480))
 iou = coco_bbox.iou(coco_bbox2)  # 0.8117110631149508
 area_union = coco_bbox + coco_bbox2  # 41670 | alternative way: coco_bbox.union(coco_bbox2)
 total_area = coco_bbox.area + coco_bbox2.area  # 75494  (not union)
-intersection_area = coco_bbox + coco_bbox2  # 33824 | alternative way: coco_bbox.intersection(coco_bbox2)
+intersection_area = coco_bbox * coco_bbox2  # 33824 | alternative way: coco_bbox.intersection(coco_bbox2)
 first_bbox_diff = coco_bbox - coco_bbox2  # 3850
 second_bbox_diff = coco_bbox2 - coco_bbox  # 3996
 bbox_ratio = coco_bbox / coco_bbox2 # 0.9961396086726599 (not IOU)
@@ -123,7 +159,7 @@ pbx.convert_bbox(coco_bbox, from_type="coco", to_type="voc")  # (1, 2, 4, 6)
 pbx.convert_bbox(voc_bbox, from_type="voc", to_type="coco")  # (1, 2, 2, 2)
 ```
 
-Some formats require image width and height information for scaling, e.g. YOLO bbox (resulting are round coordinates 
+Some formats require image width and height information for scaling, e.g. YOLO bbox (resulting coordinates 
 are rounded to 2 decimals to ease reading).
 
 ```python

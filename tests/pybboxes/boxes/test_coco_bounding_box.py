@@ -11,6 +11,11 @@ def coco_bounding_box(coco_bbox, image_size):
 
 
 @pytest.fixture(scope="module")
+def coco_oob_bounding_box():
+    return [100, 105, 460, 425]
+
+
+@pytest.fixture(scope="module")
 def coco_bounding_box2(coco_bbox, image_size):
     np.random.seed(42)
     coco_bbox2 = coco_bbox + np.random.randint(-5, 5, size=4)
@@ -29,6 +34,13 @@ def coco_area_computations_expected_output():
     }
 
 
+def test_from_array(coco_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        coco_box = CocoBoundingBox.from_array(coco_bbox, image_size=image_size)
+
+    assert coco_box.is_oob is False
+
+
 def test_shift(coco_bounding_box, unnormalized_bbox_shift_amount):
     actual_output = coco_bounding_box.shift(unnormalized_bbox_shift_amount)
 
@@ -38,12 +50,18 @@ def test_shift(coco_bounding_box, unnormalized_bbox_shift_amount):
     assert_almost_equal(actual=list(actual_output.values), desired=list(desired))
 
 
-def test_from_array(coco_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        CocoBoundingBox.from_array(coco_bbox, image_size=image_size)
+def test_oob(coco_oob_bounding_box, image_size):
+    with pytest.raises(ValueError):
+        BoundingBox.from_coco(*coco_oob_bounding_box, image_size=image_size)
+
+    coco_box = BoundingBox.from_coco(*coco_oob_bounding_box, image_size=image_size, strict=False)
+    assert coco_box.is_oob is True
 
 
-def test_to_coco(coco_bounding_box, albumentations_bbox):
+# Conversions
+
+
+def test_to_albumentations(coco_bounding_box, albumentations_bbox):
     coco2albumentations_bbox = coco_bounding_box.to_albumentations()
     assert_almost_equal(actual=list(coco2albumentations_bbox.values), desired=albumentations_bbox)
 

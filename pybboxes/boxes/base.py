@@ -66,6 +66,7 @@ class BaseBoundingBox(Box, ABC):
     ):
         self._image_size = image_size
         self.strict = strict
+        self._is_oob = None
         v1, v2, v3, v4 = self._correct_value_types(v1, v2, v3, v4)
         self._validate_values(v1, v2, v3, v4)
         self.__set_values(v1, v2, v3, v4)
@@ -78,6 +79,16 @@ class BaseBoundingBox(Box, ABC):
         return f"<[{str_vals}] ({self.width}x{self.height}) | Image: " f"({image_width or '?'}x{image_height or '?'})>"
 
     @property
+    def is_oob(self) -> Union[bool, None]:
+        """
+        Whether the box is OOB (Out-of-bounds).
+
+        Returns:
+            None -> unknown. False -> Not OOB. True -> OOB.
+        """
+        return self._is_oob
+
+    @property
     def image_size(self):
         if self._image_size is not None:
             return self._image_size
@@ -87,6 +98,11 @@ class BaseBoundingBox(Box, ABC):
     @image_size.setter
     def image_size(self, image_size: Tuple[int, int]):
         self._image_size = image_size
+
+    def is_image_size_null(self):
+        if self.image_size == (None, None):
+            return True
+        return False
 
     @property
     def values(self) -> Tuple:
@@ -121,13 +137,13 @@ class BaseBoundingBox(Box, ABC):
     def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_yolo(return_values)
 
-    # @abstractmethod
-    def shift(self, threshold: Tuple[int, int]) -> "BaseBoundingBox":
+    @abstractmethod
+    def shift(self, amount: Tuple) -> "BaseBoundingBox":
         """Perform a shift operation on the bounding box, and return a new bounding
         box.
 
         Args:
-            threshold: The amount to shift the bounding box. The first value is the
+            amount: The amount to shift the bounding box. The first value is the
                 amount to shift the x-coordinate, and the second value is the
                 amount to shift the y-coordinate.
         """
