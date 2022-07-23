@@ -11,22 +11,34 @@ def fiftyone_bounding_box(fiftyone_bbox, image_size):
 
 
 @pytest.fixture(scope="module")
+def fiftyone_oob_bounding_box():
+    return [0.15625, 0.21875, 0.71875, 0.8854166666666666]
+
+
+@pytest.fixture(scope="module")
 def fiftyone_bounding_box2(fiftyone_bbox, image_size):
     np.random.seed(42)
-    fiftyone_bbox2 = fiftyone_bbox + np.random.uniform(-0.05, 0.05, size=4)
+    fiftyone_bbox2 = fiftyone_bbox + np.random.uniform(-0.05, 0.01, size=4)
     return BoundingBox.from_fiftyone(*fiftyone_bbox2, image_size=image_size)
 
 
 @pytest.fixture(scope="function")
 def fiftyone_area_computations_expected_output():
     return {
-        "total_area": 78330,
-        "union": 47623,
-        "intersection": 30707,
-        "iou": 0.6447934821409823,
-        "ratio": 0.9266528925619835,
-        "difference": 6967,
+        "total_area": 72654,
+        "union": 39528,
+        "intersection": 33126,
+        "iou": 0.8380388585306618,
+        "ratio": 1.0770154373927958,
+        "difference": 4548,
     }
+
+
+def test_from_array(fiftyone_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        fo_box = FiftyoneBoundingBox.from_array(fiftyone_bbox, image_size=image_size)
+
+    assert fo_box.is_oob is False
 
 
 def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
@@ -37,9 +49,15 @@ def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
     assert_almost_equal(actual=actual_output.values, desired=desired)
 
 
-def test_from_array(fiftyone_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        FiftyoneBoundingBox.from_array(fiftyone_bbox, image_size=image_size)
+def test_oob(fiftyone_oob_bounding_box, image_size):
+    with pytest.raises(ValueError):
+        BoundingBox.from_fiftyone(*fiftyone_oob_bounding_box, image_size=image_size)
+
+    fo_box = BoundingBox.from_fiftyone(*fiftyone_oob_bounding_box, image_size=image_size, strict=False)
+    assert fo_box.is_oob is True
+
+
+# Conversions
 
 
 def test_to_albumentations(fiftyone_bounding_box, albumentations_bbox):

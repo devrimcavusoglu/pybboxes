@@ -1,7 +1,7 @@
 from importlib import import_module
 from typing import Tuple, Union
 
-from pybboxes.types.base import BaseBoundingBox
+from pybboxes.boxes.base import BaseBoundingBox
 
 
 def load_bbox(
@@ -11,7 +11,7 @@ def load_bbox(
         return snake_string.title().replace("_", "")
 
     module_name = f"{name}_bounding_box"
-    module_path = f"pybboxes.types.{module_name}"
+    module_path = f"pybboxes.boxes.{module_name}"
     klass_name = pascalize(module_name)
     module = import_module(module_path)
     klass = getattr(module, klass_name)
@@ -47,14 +47,19 @@ class BoundingBox(BaseBoundingBox):
         elif (x_tl, y_tl) == (x_br, y_br):
             raise ValueError("Given top-left and bottom-right points must be distinct.")
         elif (
-            self.strict
-            and (x_tl < 0 or y_tl < 0)
-            or (image_height is not None and y_br > image_height)
+            not 0 <= x_tl < x_br
+            or not 0 <= y_tl < y_br
             or (image_width is not None and x_br > image_width)
+            or (image_height is not None and y_br > image_height)
         ):
-            raise ValueError(
-                "Top-left axes cannot be negative. To silently skip out of bounds cases pass 'strict=False'."
-            )
+            if self.strict:
+                raise ValueError(
+                    "Given bounding box values is out of bounds. "
+                    "To silently skip out of bounds cases pass 'strict=False'."
+                )
+            self._is_oob = True
+        elif not self.is_image_size_null():
+            self._is_oob = False
 
     def shift(self, amount: Tuple[float, float]) -> "BoundingBox":
         """Returns a new bounding box shifted by the given thresholds. The new
@@ -87,7 +92,12 @@ class BoundingBox(BaseBoundingBox):
 
     def _to_bbox_type(self, name: str, return_values: bool) -> BaseBoundingBox:
         return load_bbox(
-            name, values=self.values, image_size=self.image_size, return_values=return_values, from_voc=True
+            name,
+            values=self.values,
+            image_size=self.image_size,
+            return_values=return_values,
+            from_voc=True,
+            strict=self.strict,
         )
 
     def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:

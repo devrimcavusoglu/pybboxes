@@ -11,22 +11,34 @@ def yolo_bounding_box(yolo_bbox, image_size):
 
 
 @pytest.fixture(scope="module")
+def yolo_oob_bounding_box():
+    return [0.515625, 0.6614583333333334, 0.71875, 0.8854166666666666]
+
+
+@pytest.fixture(scope="module")
 def yolo_bounding_box2(yolo_bbox, image_size):
     np.random.seed(42)
-    yolo_bbox2 = yolo_bbox + np.random.uniform(-0.05, 0.05, size=4)
+    yolo_bbox2 = yolo_bbox + np.random.uniform(-0.05, 0.01, size=4)
     return BoundingBox.from_yolo(*yolo_bbox2, image_size=image_size)
 
 
 @pytest.fixture(scope="function")
 def yolo_area_computations_expected_output():
     return {
-        "total_area": 78330,
-        "union": 46919,
-        "intersection": 31411,
-        "iou": 0.6694729214177625,
-        "ratio": 0.9266528925619835,
-        "difference": 6263,
+        "total_area": 72654,
+        "union": 39314,
+        "intersection": 33340,
+        "iou": 0.8480439538078038,
+        "ratio": 1.0770154373927958,
+        "difference": 4334,
     }
+
+
+def test_from_array(yolo_bbox, image_size):
+    with pytest.warns(FutureWarning):
+        yolo_box = YoloBoundingBox.from_array(yolo_bbox, image_size=image_size)
+
+    assert yolo_box.is_oob is False
 
 
 def test_shift(yolo_bounding_box, normalized_bbox_shift_amount):
@@ -39,9 +51,15 @@ def test_shift(yolo_bounding_box, normalized_bbox_shift_amount):
     assert_almost_equal(actual=actual_output.values, desired=desired)
 
 
-def test_from_array(yolo_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        YoloBoundingBox.from_array(yolo_bbox, image_size=image_size)
+def test_oob(yolo_oob_bounding_box, image_size):
+    with pytest.raises(ValueError):
+        BoundingBox.from_yolo(*yolo_oob_bounding_box, image_size=image_size)
+
+    yolo_box = BoundingBox.from_yolo(*yolo_oob_bounding_box, image_size=image_size, strict=False)
+    assert yolo_box.is_oob is True
+
+
+# Conversions
 
 
 def test_to_albumentations(yolo_bounding_box, albumentations_bbox):

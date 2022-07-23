@@ -11,6 +11,11 @@ def albumentations_bounding_box(albumentations_bbox, image_size):
 
 
 @pytest.fixture(scope="module")
+def albumentations_oob_bounding_box():
+    return [0.15625, 0.21875, 0.875, 1.1041666666666667]
+
+
+@pytest.fixture(scope="module")
 def albumentations_bounding_box2(albumentations_bbox, image_size):
     np.random.seed(42)
     albumentations_bbox2 = albumentations_bbox + np.random.uniform(-0.05, 0.05, size=4)
@@ -31,12 +36,9 @@ def albumentations_area_computations_expected_output():
 
 def test_from_array(albumentations_bbox, image_size):
     with pytest.warns(FutureWarning):
-        AlbumentationsBoundingBox.from_array(albumentations_bbox, image_size=image_size)
+        alb_box = AlbumentationsBoundingBox.from_array(albumentations_bbox, image_size=image_size)
 
-
-def test_to_coco(albumentations_bounding_box, coco_bbox):
-    alb2coco_bbox = albumentations_bounding_box.to_coco()
-    assert_almost_equal(actual=list(alb2coco_bbox.values), desired=coco_bbox)
+    assert alb_box.is_oob is False
 
 
 def test_shift(albumentations_bounding_box, normalized_bbox_shift_amount):
@@ -51,6 +53,22 @@ def test_shift(albumentations_bounding_box, normalized_bbox_shift_amount):
     ]
 
     assert_almost_equal(actual=list(actual_output.values), desired=desired)
+
+
+def test_oob(albumentations_oob_bounding_box, image_size):
+    with pytest.raises(ValueError):
+        BoundingBox.from_albumentations(*albumentations_oob_bounding_box, image_size=image_size)
+
+    alb_box = BoundingBox.from_albumentations(*albumentations_oob_bounding_box, image_size=image_size, strict=False)
+    assert alb_box.is_oob is True
+
+
+# Conversions
+
+
+def test_to_coco(albumentations_bounding_box, coco_bbox):
+    alb2coco_bbox = albumentations_bounding_box.to_coco()
+    assert_almost_equal(actual=list(alb2coco_bbox.values), desired=coco_bbox)
 
 
 def test_to_fiftyone(albumentations_bounding_box, fiftyone_bbox):

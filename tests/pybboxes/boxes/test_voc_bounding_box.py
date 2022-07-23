@@ -11,6 +11,11 @@ def voc_bounding_box(voc_bbox, image_size):
 
 
 @pytest.fixture(scope="module")
+def voc_oob_bounding_box():
+    return [100, 105, 560, 530]
+
+
+@pytest.fixture(scope="module")
 def voc_bounding_box2(voc_bbox, image_size):
     np.random.seed(42)
     voc_bbox2 = voc_bbox + np.random.randint(-5, 5, size=4)
@@ -31,7 +36,34 @@ def voc_area_computations_expected_output():
 
 def test_from_array(voc_bbox, image_size):
     with pytest.warns(FutureWarning):
-        VocBoundingBox.from_array(voc_bbox, image_size=image_size)
+        voc_box = VocBoundingBox.from_array(voc_bbox, image_size=image_size)
+
+    assert voc_box.is_oob is False
+
+
+def test_shift(voc_bounding_box, unnormalized_bbox_shift_amount):
+    actual_output = voc_bounding_box.shift(unnormalized_bbox_shift_amount)
+
+    x_tl, y_tl, x_br, y_br = voc_bounding_box.values
+    desired = [
+        x_tl + unnormalized_bbox_shift_amount[0],
+        y_tl + unnormalized_bbox_shift_amount[1],
+        x_br + unnormalized_bbox_shift_amount[0],
+        y_br + unnormalized_bbox_shift_amount[1],
+    ]
+
+    assert_almost_equal(actual=list(actual_output.values), desired=desired)
+
+
+def test_oob(voc_oob_bounding_box, image_size):
+    with pytest.raises(ValueError):
+        BoundingBox.from_albumentations(*voc_oob_bounding_box, image_size=image_size)
+
+    voc_box = BoundingBox.from_albumentations(*voc_oob_bounding_box, image_size=image_size, strict=False)
+    assert voc_box.is_oob is True
+
+
+# Conversions
 
 
 def test_to_albumentations(voc_bounding_box, albumentations_bbox):
