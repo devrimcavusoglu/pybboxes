@@ -23,8 +23,8 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         elif not 0 <= x_tl < x_tl + w <= 1 or not 0 <= y_tl < y_tl + h <= 1:
             if self.strict:
                 raise ValueError(
-                        "Given bounding box values is out of bounds. "
-                        "To silently skip out of bounds cases pass 'strict=False'."
+                    "Given bounding box values is out of bounds. "
+                    "To silently skip out of bounds cases pass 'strict=False'."
                 )
             self._is_oob = True
         else:

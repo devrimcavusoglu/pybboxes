@@ -29,8 +29,8 @@ class CocoBoundingBox(BaseBoundingBox):
         ):
             if self.strict:
                 raise ValueError(
-                        "Given bounding box values is out of bounds. "
-                        "To silently skip out of bounds cases pass 'strict=False'."
+                    "Given bounding box values is out of bounds. "
+                    "To silently skip out of bounds cases pass 'strict=False'."
                 )
             self._is_oob = True
         elif not self.is_image_size_null():
