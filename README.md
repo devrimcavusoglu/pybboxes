@@ -1,6 +1,6 @@
 <h1 align="center">PyBboxes</h1>
 <p align="center">
-<a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/v/pybboxes" alt="Python versions"></a>
+<a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/v/pybboxes?color=blue" alt="Python versions"></a>
 <br>
 <a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/pyversions/pybboxes" alt="Python versions"></a>
 <a href="https://github.com/devrimcavusoglu/pybboxes/actions/workflows/ci.yml"><img src="https://img.shields.io/github/workflow/status/devrimcavusoglu/pybboxes/Tests" alt="DOI"></a>
