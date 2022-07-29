@@ -61,34 +61,26 @@ class BoundingBox(BaseBoundingBox):
         elif not self.is_image_size_null():
             self._is_oob = False
 
-    def shift(self, amount: Tuple[float, float]) -> "BoundingBox":
-        """Returns a new bounding box shifted by the given thresholds. The new
-        bounding box has same image shape, and other properties as the current
-        object.
+    def clamp(self) -> "BoundingBox":
+        if self.is_image_size_null() or not self.is_oob:
+            return self
+        x_tl, y_tl, x_br, y_br = self.values
+        width, height = self.image_size
+        x_tl = max(x_tl, 0)
+        y_tl = max(y_tl, 0)
+        x_br = min(x_br, width)
+        y_br = min(y_br, height)
+        new_values = (x_tl, y_tl, x_br, y_br)
+        self._validate_and_set_values(*new_values)
+        return self
 
-        Parameters
-        ----------
-        amount: Tuple[float, float]
-            The amount to shift the bounding box. The first value is the
-                amount to shift the x-coordinate, and the second value is the
-                amount to shift the y-coordinate.
-
-        Returns
-        -------
-        BoundingBox
-            The new bounding box.
-        """
+    def shift(self, amount: Tuple[int, int]) -> "BoundingBox":
         x_tl, y_tl, x_br, y_br = self.values
         horizontal_shift, vertical_shift = amount
 
-        return BoundingBox(
-            x_tl + horizontal_shift,
-            y_tl + vertical_shift,
-            x_br + horizontal_shift,
-            y_br + vertical_shift,
-            self.image_size,
-            self.strict,
-        )
+        new_values = (x_tl + horizontal_shift, y_tl + vertical_shift, x_br + horizontal_shift, y_br + vertical_shift)
+        self._validate_and_set_values(*new_values)
+        return self
 
     def _to_bbox_type(self, name: str, return_values: bool) -> BaseBoundingBox:
         return load_bbox(

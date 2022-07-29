@@ -5,7 +5,7 @@ from pybboxes import BoundingBox, YoloBoundingBox
 from tests.utils import assert_almost_equal
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def yolo_bounding_box(yolo_bbox, image_size):
     return BoundingBox.from_yolo(*yolo_bbox, image_size=image_size)
 
@@ -42,12 +42,11 @@ def test_from_array(yolo_bbox, image_size):
 
 
 def test_shift(yolo_bounding_box, normalized_bbox_shift_amount):
+    x_c, y_c, w, h = yolo_bounding_box.values
+    desired = (x_c + normalized_bbox_shift_amount[0], y_c + normalized_bbox_shift_amount[1], w, h)
     actual_output = yolo_bounding_box.shift(normalized_bbox_shift_amount)
-    x_tl, y_tl, w, h = yolo_bounding_box.values
-    desired = (x_tl + normalized_bbox_shift_amount[0], y_tl + normalized_bbox_shift_amount[1], w, h)
 
     print(actual_output, desired, "Yolo Bounding Box")
-
     assert_almost_equal(actual=actual_output.values, desired=desired)
 
 

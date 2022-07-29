@@ -5,7 +5,7 @@ from pybboxes import BoundingBox, VocBoundingBox
 from tests.utils import assert_almost_equal
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def voc_bounding_box(voc_bbox, image_size):
     return BoundingBox.from_voc(*voc_bbox, image_size=image_size)
 
@@ -42,17 +42,16 @@ def test_from_array(voc_bbox, image_size):
 
 
 def test_shift(voc_bounding_box, unnormalized_bbox_shift_amount):
-    actual_output = voc_bounding_box.shift(unnormalized_bbox_shift_amount)
-
     x_tl, y_tl, x_br, y_br = voc_bounding_box.values
-    desired = [
+    desired = (
         x_tl + unnormalized_bbox_shift_amount[0],
         y_tl + unnormalized_bbox_shift_amount[1],
         x_br + unnormalized_bbox_shift_amount[0],
         y_br + unnormalized_bbox_shift_amount[1],
-    ]
+    )
+    actual_output = voc_bounding_box.shift(unnormalized_bbox_shift_amount)
 
-    assert_almost_equal(actual=list(actual_output.values), desired=desired)
+    assert_almost_equal(actual=actual_output.values, desired=desired)
 
 
 def test_oob(voc_oob_bounding_box, image_size):

@@ -5,7 +5,7 @@ from pybboxes import AlbumentationsBoundingBox, BoundingBox
 from tests.utils import assert_almost_equal
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def albumentations_bounding_box(albumentations_bbox, image_size):
     return BoundingBox.from_albumentations(*albumentations_bbox, image_size=image_size)
 
@@ -42,17 +42,16 @@ def test_from_array(albumentations_bbox, image_size):
 
 
 def test_shift(albumentations_bounding_box, normalized_bbox_shift_amount):
-    actual_output = albumentations_bounding_box.shift(normalized_bbox_shift_amount)
-
     x_tl, y_tl, x_br, y_br = albumentations_bounding_box.values
-    desired = [
+    desired = (
         x_tl + normalized_bbox_shift_amount[0],
         y_tl + normalized_bbox_shift_amount[1],
         x_br + normalized_bbox_shift_amount[0],
         y_br + normalized_bbox_shift_amount[1],
-    ]
+    )
+    actual_output = albumentations_bounding_box.shift(normalized_bbox_shift_amount)
 
-    assert_almost_equal(actual=list(actual_output.values), desired=desired)
+    assert_almost_equal(actual=actual_output.values, desired=desired, decimal=2)
 
 
 def test_oob(albumentations_oob_bounding_box, image_size):
