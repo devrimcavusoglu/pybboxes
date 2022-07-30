@@ -6,12 +6,7 @@ import numpy as np
 
 from pybboxes.utils import find_stack_level
 
-
-NORMALIZED_BOXES = [
-    "albumentations",
-    "fiftyone",
-    "yolo"
-]
+NORMALIZED_BOXES = ["albumentations", "fiftyone", "yolo"]
 
 
 class Box:
