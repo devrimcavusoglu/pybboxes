@@ -1,6 +1,8 @@
 from importlib import import_module
 from typing import Tuple, Union
 
+from numpy import sqrt
+
 from pybboxes.boxes.base import BaseBoundingBox
 
 
@@ -74,6 +76,20 @@ class BoundingBox(BaseBoundingBox):
         self._validate_and_set_values(*new_values)
         return self
 
+    def scale(self, factor: float) -> "BaseBoundingBox":
+        if factor <= 0:
+            raise ValueError("Scaling 'factor' must be a positive value.")
+        x_tl, y_tl, x_br, y_br = self.values
+        w, h = x_br - x_tl, y_br - y_tl
+        x_c, y_c = x_tl + w / 2, y_tl + h / 2
+
+        # Apply sqrt for both w and h to scale w.r.t area.
+        w *= sqrt(factor)
+        h *= sqrt(factor)
+        new_values = (x_c - w / 2, y_c - h / 2, x_c + w / 2, y_c + h / 2)
+        self._validate_and_set_values(*new_values)
+        return self
+
     def shift(self, amount: Tuple[int, int]) -> "BoundingBox":
         x_tl, y_tl, x_br, y_br = self.values
         horizontal_shift, vertical_shift = amount
@@ -102,9 +118,7 @@ class BoundingBox(BaseBoundingBox):
         return self._to_bbox_type("fiftyone", return_values)
 
     def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        if return_values:
-            return self.values
-        return self
+        return self._to_bbox_type("voc", return_values)
 
     def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self._to_bbox_type("yolo", return_values)
@@ -118,8 +132,8 @@ class BoundingBox(BaseBoundingBox):
         y_br: int,
         image_size: Tuple[int, int] = None,
         strict: bool = True,
-    ) -> "BoundingBox":
-        return cls(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
+    ) -> "BaseBoundingBox":
+        return load_bbox("voc", values=(x_tl, y_tl, x_br, y_br), image_size=image_size, strict=strict)
 
     @classmethod
     def from_albumentations(

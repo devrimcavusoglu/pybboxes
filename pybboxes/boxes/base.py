@@ -127,6 +127,7 @@ class BaseBoundingBox(Box, ABC):
         """
         Validate and sets given values if validation is successful.
         """
+        values = self._correct_value_types(*values)
         self._validate_values(*values)
         self._set_values(*values)
 
@@ -164,6 +165,10 @@ class BaseBoundingBox(Box, ABC):
         Clamps the box with respect to the image borders. If the box is not OOB, does nothing.
         """
         self._generic_operation("clamp")
+        return self
+
+    def scale(self, factor: float) -> "BaseBoundingBox":
+        self._generic_operation("scale", factor)
         return self
 
     def shift(self, amount: Tuple) -> "BaseBoundingBox":

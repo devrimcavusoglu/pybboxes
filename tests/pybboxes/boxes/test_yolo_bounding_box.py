@@ -22,6 +22,11 @@ def yolo_bounding_box2(yolo_bbox, image_size):
     return BoundingBox.from_yolo(*yolo_bbox2, image_size=image_size)
 
 
+@pytest.fixture()
+def scaled_yolo_box():
+    return 0.4046875, 0.840625, 0.35625, 0.17291666666666666
+
+
 @pytest.fixture(scope="function")
 def yolo_area_computations_expected_output():
     return {
@@ -32,6 +37,18 @@ def yolo_area_computations_expected_output():
         "ratio": 1.0770154373927958,
         "difference": 4334,
     }
+
+
+def test_area_computations(yolo_bounding_box, yolo_bounding_box2, yolo_area_computations_expected_output):
+    actual_output = {
+        "total_area": yolo_bounding_box.area + yolo_bounding_box2.area,
+        "union": yolo_bounding_box + yolo_bounding_box2,
+        "intersection": yolo_bounding_box * yolo_bounding_box2,
+        "iou": yolo_bounding_box.iou(yolo_bounding_box2),
+        "ratio": yolo_bounding_box / yolo_bounding_box2,
+        "difference": yolo_bounding_box - yolo_bounding_box2,
+    }
+    assert_almost_equal(actual=actual_output, desired=yolo_area_computations_expected_output)
 
 
 def test_from_array(yolo_bbox, image_size):
@@ -46,8 +63,21 @@ def test_shift(yolo_bounding_box, normalized_bbox_shift_amount):
     desired = (x_c + normalized_bbox_shift_amount[0], y_c + normalized_bbox_shift_amount[1], w, h)
     actual_output = yolo_bounding_box.shift(normalized_bbox_shift_amount)
 
-    print(actual_output, desired, "Yolo Bounding Box")
     assert_almost_equal(actual=actual_output.values, desired=desired)
+
+
+def test_scale(yolo_bounding_box, scaled_yolo_box, scale_factor):
+    _, _, w, h = yolo_bounding_box.values
+    image_width, image_height = yolo_bounding_box.image_size
+    w, h = w * image_width, h * image_height
+
+    yolo_bounding_box.scale(scale_factor)
+
+    assert_almost_equal(actual=yolo_bounding_box.values, desired=scaled_yolo_box, ignore_numeric_type_changes=True)
+
+    actual_area = yolo_bounding_box.area
+    desired_area = w * h * scale_factor
+    assert actual_area - desired_area < 10**2
 
 
 def test_oob(yolo_oob_bounding_box, image_size):
@@ -79,15 +109,3 @@ def test_to_fiftyone(yolo_bounding_box, fiftyone_bbox):
 def test_to_voc(yolo_bounding_box, voc_bbox):
     yolo2voc_bbox = yolo_bounding_box.to_voc()
     assert_almost_equal(actual=list(yolo2voc_bbox.values), desired=voc_bbox)
-
-
-def test_area_computations(yolo_bounding_box, yolo_bounding_box2, yolo_area_computations_expected_output):
-    actual_output = {
-        "total_area": yolo_bounding_box.area + yolo_bounding_box2.area,
-        "union": yolo_bounding_box + yolo_bounding_box2,
-        "intersection": yolo_bounding_box * yolo_bounding_box2,
-        "iou": yolo_bounding_box.iou(yolo_bounding_box2),
-        "ratio": yolo_bounding_box / yolo_bounding_box2,
-        "difference": yolo_bounding_box - yolo_bounding_box2,
-    }
-    assert_almost_equal(actual=actual_output, desired=yolo_area_computations_expected_output)
