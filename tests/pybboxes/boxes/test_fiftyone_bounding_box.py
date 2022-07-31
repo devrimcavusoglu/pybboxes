@@ -5,7 +5,7 @@ from pybboxes import BoundingBox, FiftyoneBoundingBox
 from tests.utils import assert_almost_equal
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def fiftyone_bounding_box(fiftyone_bbox, image_size):
     return BoundingBox.from_fiftyone(*fiftyone_bbox, image_size=image_size)
 
@@ -42,9 +42,9 @@ def test_from_array(fiftyone_bbox, image_size):
 
 
 def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
-    actual_output = fiftyone_bounding_box.shift(normalized_bbox_shift_amount)
     x_tl, y_tl, w, h = fiftyone_bounding_box.values
     desired = (x_tl + normalized_bbox_shift_amount[0], y_tl + normalized_bbox_shift_amount[1], w, h)
+    actual_output = fiftyone_bounding_box.shift(normalized_bbox_shift_amount)
 
     assert_almost_equal(actual=actual_output.values, desired=desired)
 

@@ -6,6 +6,8 @@ import numpy as np
 
 from pybboxes.utils import find_stack_level
 
+NORMALIZED_BOXES = ["albumentations", "fiftyone", "yolo"]
+
 
 class Box:
     def __init__(self, x_tl: int, y_tl: int, x_br: int, y_br: int):
@@ -69,7 +71,7 @@ class BaseBoundingBox(Box, ABC):
         self._is_oob = None
         v1, v2, v3, v4 = self._correct_value_types(v1, v2, v3, v4)
         self._validate_values(v1, v2, v3, v4)
-        self.__set_values(v1, v2, v3, v4)
+        self._set_values(v1, v2, v3, v4)
         voc_values = self.to_voc(return_values=True)
         super(BaseBoundingBox, self).__init__(*voc_values)
 
@@ -115,11 +117,18 @@ class BaseBoundingBox(Box, ABC):
     def _validate_values(self, *values):
         pass
 
-    def __set_values(self, *values):
+    def _set_values(self, *values):
         """
         This method is intended to be "final", and should not be overridden in child classes.
         """
         self._values = values
+
+    def _validate_and_set_values(self, *values) -> None:
+        """
+        Validate and sets given values if validation is successful.
+        """
+        self._validate_values(*values)
+        self._set_values(*values)
 
     def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_albumentations(return_values)
@@ -137,17 +146,40 @@ class BaseBoundingBox(Box, ABC):
     def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
         return self.to_voc().to_yolo(return_values)
 
-    @abstractmethod
+    @property
+    def name(self):
+        return self.__class__.__name__.lower().replace("boundingbox", "")
+
+    def _generic_operation(self, op: str, *args, **kwargs) -> None:
+        refined_box = self.to_voc()
+        box_op = getattr(refined_box, op)
+        refined_box = box_op(*args, **kwargs)
+        box_conversion = getattr(refined_box, f"to_{self.name}")
+        refined_box = box_conversion()
+
+        self.__init__(*refined_box.values, image_size=self.image_size, strict=self.strict)
+
+    def clamp(self) -> "BaseBoundingBox":
+        """
+        Clamps the box with respect to the image borders. If the box is not OOB, does nothing.
+        """
+        self._generic_operation("clamp")
+        return self
+
     def shift(self, amount: Tuple) -> "BaseBoundingBox":
-        """Perform a shift operation on the bounding box, and return a new bounding
-        box.
+        """
+        Perform a shift operation on the bounding box inplace.
 
         Args:
             amount: The amount to shift the bounding box. The first value is the
                 amount to shift the x-coordinate, and the second value is the
                 amount to shift the y-coordinate.
         """
-        pass
+        if self.name in NORMALIZED_BOXES:
+            width, height = self.image_size
+            amount = (amount[0] * width, amount[1] * height)
+        self._generic_operation("shift", amount)
+        return self
 
     @classmethod
     @abstractmethod

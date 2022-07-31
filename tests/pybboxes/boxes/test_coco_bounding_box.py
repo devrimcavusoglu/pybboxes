@@ -5,7 +5,7 @@ from pybboxes import BoundingBox, CocoBoundingBox
 from tests.utils import assert_almost_equal
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def coco_bounding_box(coco_bbox, image_size):
     return BoundingBox.from_coco(*coco_bbox, image_size=image_size)
 
@@ -42,10 +42,9 @@ def test_from_array(coco_bbox, image_size):
 
 
 def test_shift(coco_bounding_box, unnormalized_bbox_shift_amount):
-    actual_output = coco_bounding_box.shift(unnormalized_bbox_shift_amount)
-
-    x_tl, y_tl, w, h = list(coco_bounding_box.values)
+    x_tl, y_tl, w, h = coco_bounding_box.values
     desired = (x_tl + unnormalized_bbox_shift_amount[0], y_tl + unnormalized_bbox_shift_amount[1], w, h)
+    actual_output = coco_bounding_box.shift(unnormalized_bbox_shift_amount)
 
     assert_almost_equal(actual=list(actual_output.values), desired=list(desired))
 
