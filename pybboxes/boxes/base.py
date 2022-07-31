@@ -154,14 +154,8 @@ class BaseBoundingBox(Box, ABC):
         refined_box = self.to_voc()
         box_op = getattr(refined_box, op)
         refined_box = box_op(*args, **kwargs)
-        if self.name == "albumentations":
-            refined_box = refined_box.to_albumentations()
-        elif self.name == "coco":
-            refined_box = refined_box.to_coco()
-        elif self.name == "fiftyone":
-            refined_box = refined_box.to_fiftyone()
-        elif self.name == "yolo":
-            refined_box = refined_box.to_yolo()
+        box_conversion = getattr(refined_box, f"to_{self.name}")
+        refined_box = box_conversion()
 
         self.__init__(*refined_box.values, image_size=self.image_size, strict=self.strict)
 
