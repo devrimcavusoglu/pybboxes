@@ -1,6 +1,8 @@
 from importlib import import_module
 from typing import Tuple, Union
 
+from numpy import sqrt
+
 from pybboxes.boxes.base import BaseBoundingBox
 
 
@@ -33,7 +35,7 @@ class BoundingBox(BaseBoundingBox):
         x_br: int,
         y_br: int,
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(BoundingBox, self).__init__(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
 
@@ -64,7 +66,7 @@ class BoundingBox(BaseBoundingBox):
     def clamp(self) -> "BoundingBox":
         if self.is_image_size_null() or not self.is_oob:
             return self
-        x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, x_br, y_br = self.raw_values
         width, height = self.image_size
         x_tl = max(x_tl, 0)
         y_tl = max(y_tl, 0)
@@ -74,8 +76,22 @@ class BoundingBox(BaseBoundingBox):
         self._validate_and_set_values(*new_values)
         return self
 
+    def scale(self, factor: float) -> "BoundingBox":
+        if factor <= 0:
+            raise ValueError("Scaling 'factor' must be a positive value.")
+        x_tl, y_tl, x_br, y_br = self.raw_values
+        w, h = x_br - x_tl, y_br - y_tl
+        x_c, y_c = x_tl + w / 2, y_tl + h / 2
+
+        # Apply sqrt for both w and h to scale w.r.t area.
+        w *= sqrt(factor)
+        h *= sqrt(factor)
+        new_values = (x_c - w / 2, y_c - h / 2, x_c + w / 2, y_c + h / 2)
+        self._validate_and_set_values(*new_values)
+        return self
+
     def shift(self, amount: Tuple[int, int]) -> "BoundingBox":
-        x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, x_br, y_br = self.raw_values
         horizontal_shift, vertical_shift = amount
 
         new_values = (x_tl + horizontal_shift, y_tl + vertical_shift, x_br + horizontal_shift, y_br + vertical_shift)
@@ -85,29 +101,29 @@ class BoundingBox(BaseBoundingBox):
     def _to_bbox_type(self, name: str, return_values: bool) -> BaseBoundingBox:
         return load_bbox(
             name,
-            values=self.values,
+            values=self.raw_values,
             image_size=self.image_size,
             return_values=return_values,
             from_voc=True,
             strict=self.strict,
         )
 
-    def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("albumentations", return_values)
+    def to_albumentations(
+        self, return_values: bool = False, **kwargs
+    ) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("albumentations", return_values, **kwargs)
 
-    def to_coco(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("coco", return_values)
+    def to_coco(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("coco", return_values, **kwargs)
 
-    def to_fiftyone(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("fiftyone", return_values)
+    def to_fiftyone(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("fiftyone", return_values, **kwargs)
 
-    def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        if return_values:
-            return self.values
-        return self
+    def to_voc(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("voc", return_values, **kwargs)
 
-    def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("yolo", return_values)
+    def to_yolo(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("yolo", return_values, **kwargs)
 
     @classmethod
     def from_voc(
@@ -118,27 +134,33 @@ class BoundingBox(BaseBoundingBox):
         y_br: int,
         image_size: Tuple[int, int] = None,
         strict: bool = True,
-    ) -> "BoundingBox":
-        return cls(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
+    ) -> "BaseBoundingBox":
+        return load_bbox("voc", values=(x_tl, y_tl, x_br, y_br), image_size=image_size, strict=strict)
 
     @classmethod
     def from_albumentations(
-        cls, x_tl: float, y_tl: float, x_br: float, y_br: float, image_size: Tuple[int, int] = None, strict: bool = True
+        cls,
+        x_tl: float,
+        y_tl: float,
+        x_br: float,
+        y_br: float,
+        image_size: Tuple[int, int] = None,
+        strict: bool = False,
     ):
         return load_bbox("albumentations", values=(x_tl, y_tl, x_br, y_br), image_size=image_size, strict=strict)
 
     @classmethod
-    def from_coco(cls, x_tl: int, y_tl: int, w: int, h: int, image_size: Tuple[int, int] = None, strict: bool = True):
+    def from_coco(cls, x_tl: int, y_tl: int, w: int, h: int, image_size: Tuple[int, int] = None, strict: bool = False):
         return load_bbox("coco", values=(x_tl, y_tl, w, h), image_size=image_size, strict=strict)
 
     @classmethod
     def from_fiftyone(
-        cls, x_tl: float, y_tl: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = True
+        cls, x_tl: float, y_tl: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = False
     ):
         return load_bbox("fiftyone", values=(x_tl, y_tl, w, h), image_size=image_size, strict=strict)
 
     @classmethod
     def from_yolo(
-        cls, x_c: float, y_c: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = True
+        cls, x_c: float, y_c: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = False
     ):
         return load_bbox("yolo", values=(x_c, y_c, w, h), image_size=image_size, strict=strict)

@@ -39,6 +39,11 @@ def normalized_bbox_shift_amount():
 
 
 @pytest.fixture(scope="package")
+def scale_factor():
+    return 0.5
+
+
+@pytest.fixture(scope="package")
 def coco_bbox():
     return [98, 345, 322, 117]
 

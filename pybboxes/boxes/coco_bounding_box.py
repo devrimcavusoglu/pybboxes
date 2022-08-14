@@ -12,9 +12,12 @@ class CocoBoundingBox(BaseBoundingBox):
         w: int,
         h: int,
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(CocoBoundingBox, self).__init__(x_tl, y_tl, w, h, image_size=image_size, strict=strict)
+
+    def _correct_value_types(self, *values):
+        return tuple([round(val) for val in values])
 
     def _validate_values(self, *values):
         image_width, image_height = self.image_size

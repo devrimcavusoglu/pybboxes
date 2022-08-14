@@ -22,6 +22,16 @@ def albumentations_bounding_box2(albumentations_bbox, image_size):
     return BoundingBox.from_albumentations(*albumentations_bbox2, image_size=image_size)
 
 
+@pytest.fixture()
+def scaled_albumentations_box():
+    return 0.22680595035775913, 0.7544463610428895, 0.5825690496422409, 0.9268036389571105
+
+
+@pytest.fixture()
+def clamped_albumentations_box():
+    return 0.22680595035775913, 0.7544463610428895, 0.5825690496422409, 0.9268036389571105
+
+
 @pytest.fixture(scope="function")
 def albumentations_area_computations_expected_output():
     return {
@@ -34,11 +44,56 @@ def albumentations_area_computations_expected_output():
     }
 
 
+def test_area_computations(
+    albumentations_bounding_box, albumentations_bounding_box2, albumentations_area_computations_expected_output
+):
+    actual_output = {
+        "total_area": albumentations_bounding_box.area + albumentations_bounding_box2.area,
+        "union": albumentations_bounding_box + albumentations_bounding_box2,
+        "intersection": albumentations_bounding_box * albumentations_bounding_box2,
+        "iou": albumentations_bounding_box.iou(albumentations_bounding_box2),
+        "ratio": albumentations_bounding_box / albumentations_bounding_box2,
+        "difference": albumentations_bounding_box - albumentations_bounding_box2,
+    }
+    assert_almost_equal(actual=actual_output, desired=albumentations_area_computations_expected_output)
+
+
 def test_from_array(albumentations_bbox, image_size):
     with pytest.warns(FutureWarning):
         alb_box = AlbumentationsBoundingBox.from_array(albumentations_bbox, image_size=image_size)
 
     assert alb_box.is_oob is False
+
+
+@pytest.mark.parametrize(
+    "box_values,expected_out",
+    [
+        ((0.15625, 0.21875, 0.875, 1.1041666666666667), (0.15625, 0.21875, 0.875, 1)),
+        ((-0.05, -0.05, 0.5, 0.5), (0.0, 0.0, 0.5, 0.5)),
+        ((0.3, 0.4, 1.04, 0.7), (0.3, 0.4, 1.0, 0.7)),
+    ],
+)
+def test_clamp(box_values, expected_out, image_size):
+    alb_box = AlbumentationsBoundingBox(*box_values, image_size=image_size)
+    alb_box.clamp()
+
+    assert_almost_equal(actual=alb_box.values, desired=expected_out, ignore_numeric_type_changes=True)
+
+
+def test_scale(albumentations_bounding_box, scaled_albumentations_box, scale_factor):
+    x_tl, y_tl, x_br, y_br = albumentations_bounding_box.values
+    image_width, image_height = albumentations_bounding_box.image_size
+    w, h = (x_br - x_tl) * image_width, (y_br - y_tl) * image_height
+
+    albumentations_bounding_box.scale(scale_factor)
+
+    assert_almost_equal(
+        actual=albumentations_bounding_box.values, desired=scaled_albumentations_box, ignore_numeric_type_changes=True
+    )
+
+    actual_area = albumentations_bounding_box.area
+    desired_area = w * h * scale_factor
+    assert actual_area - desired_area < 10**2
 
 
 def test_shift(albumentations_bounding_box, normalized_bbox_shift_amount):
@@ -56,9 +111,9 @@ def test_shift(albumentations_bounding_box, normalized_bbox_shift_amount):
 
 def test_oob(albumentations_oob_bounding_box, image_size):
     with pytest.raises(ValueError):
-        BoundingBox.from_albumentations(*albumentations_oob_bounding_box, image_size=image_size)
+        BoundingBox.from_albumentations(*albumentations_oob_bounding_box, image_size=image_size, strict=True)
 
-    alb_box = BoundingBox.from_albumentations(*albumentations_oob_bounding_box, image_size=image_size, strict=False)
+    alb_box = BoundingBox.from_albumentations(*albumentations_oob_bounding_box, image_size=image_size)
     assert alb_box.is_oob is True
 
 
@@ -83,17 +138,3 @@ def test_to_voc(albumentations_bounding_box, voc_bbox):
 def test_to_yolo(albumentations_bounding_box, yolo_bbox):
     alb2yolo_bbox = albumentations_bounding_box.to_yolo()
     assert_almost_equal(actual=list(alb2yolo_bbox.values), desired=yolo_bbox)
-
-
-def test_area_computations(
-    albumentations_bounding_box, albumentations_bounding_box2, albumentations_area_computations_expected_output
-):
-    actual_output = {
-        "total_area": albumentations_bounding_box.area + albumentations_bounding_box2.area,
-        "union": albumentations_bounding_box + albumentations_bounding_box2,
-        "intersection": albumentations_bounding_box * albumentations_bounding_box2,
-        "iou": albumentations_bounding_box.iou(albumentations_bounding_box2),
-        "ratio": albumentations_bounding_box / albumentations_bounding_box2,
-        "difference": albumentations_bounding_box - albumentations_bounding_box2,
-    }
-    assert_almost_equal(actual=actual_output, desired=albumentations_area_computations_expected_output)

@@ -52,11 +52,11 @@ def print_console_centered(text: str, fill_char="="):
     print(f" {text} ".center(w, fill_char))
 
 
-def assert_almost_equal(actual, desired, decimal=3, exclude_paths=None):
+def assert_almost_equal(actual, desired, decimal=3, exclude_paths=None, **kwargs):
     # significant digits default value changed to 3 (from 5) due to variety in
     # results for different hardware architectures.
-    diff = DeepDiff(actual, desired, significant_digits=decimal, exclude_paths=exclude_paths)
-    assert diff == {}, f"Actual and Desired Dicts are not Almost Equal:\n {json.dumps(diff, indent=2)}"
+    diff = DeepDiff(actual, desired, significant_digits=decimal, exclude_paths=exclude_paths, **kwargs)
+    assert diff == {}, f"Actual and Desired Dicts are not Almost Equal:\n {json.dumps(diff, indent=2, default=str)}"
 
 
 def shell_capture(command, out_json=True):

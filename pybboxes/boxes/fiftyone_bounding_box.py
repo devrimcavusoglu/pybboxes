@@ -12,7 +12,7 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         w: float,
         h: float,
         image_size: Tuple[int, int],
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(FiftyoneBoundingBox, self).__init__(x_tl, y_tl, w, h, image_size=image_size, strict=strict)
 
@@ -41,6 +41,7 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         h *= image_height
         x_br = x_tl + w
         y_br = y_tl + h
+        x_tl, y_tl, x_br, y_br = round(x_tl), round(y_tl), round(x_br), round(y_br)
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)
