@@ -69,6 +69,7 @@ class BaseBoundingBox(Box, ABC):
         self._image_size = image_size
         self.strict = strict
         self._is_oob = None
+        self.raw_values = (v1, v2, v3, v4)
         v1, v2, v3, v4 = self._correct_value_types(v1, v2, v3, v4)
         self._validate_values(v1, v2, v3, v4)
         self._set_values(v1, v2, v3, v4)
@@ -127,6 +128,7 @@ class BaseBoundingBox(Box, ABC):
         """
         Validate and sets given values if validation is successful.
         """
+        self.raw_values = values
         values = self._correct_value_types(*values)
         self._validate_values(*values)
         self._set_values(*values)
@@ -158,7 +160,11 @@ class BaseBoundingBox(Box, ABC):
         box_conversion = getattr(refined_box, f"to_{self.name}")
         refined_box = box_conversion()
 
-        self.__init__(*refined_box.values, image_size=self.image_size, strict=self.strict)
+        if self.name in NORMALIZED_BOXES:
+            values = refined_box.raw_values
+        else:
+            values = refined_box.values
+        self.__init__(*values, image_size=self.image_size, strict=self.strict)
 
     def clamp(self) -> "BaseBoundingBox":
         """

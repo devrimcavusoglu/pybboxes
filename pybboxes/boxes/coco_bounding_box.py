@@ -16,6 +16,9 @@ class CocoBoundingBox(BaseBoundingBox):
     ):
         super(CocoBoundingBox, self).__init__(x_tl, y_tl, w, h, image_size=image_size, strict=strict)
 
+    def _correct_value_types(self, *values):
+        return tuple([round(val) for val in values])
+
     def _validate_values(self, *values):
         image_width, image_height = self.image_size
 
@@ -40,6 +43,7 @@ class CocoBoundingBox(BaseBoundingBox):
         x_tl, y_tl, w, h = self.values
         x_br = x_tl + w
         y_br = y_tl + h
+        x_tl, y_tl, x_br, y_br = round(x_tl), round(y_tl), round(x_br), round(y_br)
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)

@@ -24,18 +24,18 @@ def fiftyone_bounding_box2(fiftyone_bbox, image_size):
 
 @pytest.fixture()
 def scaled_fiftyone_box():
-    return 0.2265625, 0.7541666666666667, 0.35625, 0.17291666666666666
+    return 0.22680595035775913, 0.7544463610428895, 0.35576309928448174, 0.17235727791422092
 
 
 @pytest.fixture(scope="function")
 def fiftyone_area_computations_expected_output():
     return {
-        "total_area": 72654,
-        "union": 39528,
-        "intersection": 33126,
-        "iou": 0.8380388585306618,
-        "ratio": 1.0770154373927958,
-        "difference": 4548,
+        "total_area": 72972,
+        "union": 39672,
+        "intersection": 33300,
+        "iou": 0.8393829401088929,
+        "ratio": 1.0673125956144824,
+        "difference": 4374,
     }
 
 

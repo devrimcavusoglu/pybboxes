@@ -20,6 +20,9 @@ class VocBoundingBox(BaseBoundingBox):
     ):
         super(VocBoundingBox, self).__init__(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
 
+    def _correct_value_types(self, *values):
+        return tuple([round(val) for val in values])
+
     def _validate_values(self, x_tl, y_tl, x_br, y_br):
         image_width, image_height = self.image_size
         if x_tl > x_br or y_tl > y_br:
@@ -43,6 +46,7 @@ class VocBoundingBox(BaseBoundingBox):
 
     def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BoundingBox"]:
         x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, x_br, y_br = round(x_tl), round(y_tl), round(x_br), round(y_br)
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)

@@ -24,18 +24,18 @@ def yolo_bounding_box2(yolo_bbox, image_size):
 
 @pytest.fixture()
 def scaled_yolo_box():
-    return 0.4046875, 0.840625, 0.35625, 0.17291666666666666
+    return 0.4046875, 0.840625, 0.3557630992844818, 0.17235727791422098
 
 
 @pytest.fixture(scope="function")
 def yolo_area_computations_expected_output():
     return {
         "total_area": 72654,
-        "union": 39314,
-        "intersection": 33340,
-        "iou": 0.8480439538078038,
+        "union": 39434,
+        "intersection": 33220,
+        "iou": 0.8424202464878024,
         "ratio": 1.0770154373927958,
-        "difference": 4334,
+        "difference": 4454,
     }
 
 

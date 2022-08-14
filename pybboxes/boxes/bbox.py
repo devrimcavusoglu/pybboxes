@@ -66,7 +66,7 @@ class BoundingBox(BaseBoundingBox):
     def clamp(self) -> "BoundingBox":
         if self.is_image_size_null() or not self.is_oob:
             return self
-        x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, x_br, y_br = self.raw_values
         width, height = self.image_size
         x_tl = max(x_tl, 0)
         y_tl = max(y_tl, 0)
@@ -79,7 +79,7 @@ class BoundingBox(BaseBoundingBox):
     def scale(self, factor: float) -> "BaseBoundingBox":
         if factor <= 0:
             raise ValueError("Scaling 'factor' must be a positive value.")
-        x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, x_br, y_br = self.raw_values
         w, h = x_br - x_tl, y_br - y_tl
         x_c, y_c = x_tl + w / 2, y_tl + h / 2
 
@@ -91,7 +91,7 @@ class BoundingBox(BaseBoundingBox):
         return self
 
     def shift(self, amount: Tuple[int, int]) -> "BoundingBox":
-        x_tl, y_tl, x_br, y_br = self.values
+        x_tl, y_tl, x_br, y_br = self.raw_values
         horizontal_shift, vertical_shift = amount
 
         new_values = (x_tl + horizontal_shift, y_tl + vertical_shift, x_br + horizontal_shift, y_br + vertical_shift)
@@ -101,27 +101,29 @@ class BoundingBox(BaseBoundingBox):
     def _to_bbox_type(self, name: str, return_values: bool) -> BaseBoundingBox:
         return load_bbox(
             name,
-            values=self.values,
+            values=self.raw_values,
             image_size=self.image_size,
             return_values=return_values,
             from_voc=True,
             strict=self.strict,
         )
 
-    def to_albumentations(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("albumentations", return_values)
+    def to_albumentations(
+        self, return_values: bool = False, **kwargs
+    ) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("albumentations", return_values, **kwargs)
 
-    def to_coco(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("coco", return_values)
+    def to_coco(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("coco", return_values, **kwargs)
 
-    def to_fiftyone(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("fiftyone", return_values)
+    def to_fiftyone(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("fiftyone", return_values, **kwargs)
 
-    def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("voc", return_values)
+    def to_voc(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("voc", return_values, **kwargs)
 
-    def to_yolo(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
-        return self._to_bbox_type("yolo", return_values)
+    def to_yolo(self, return_values: bool = False, **kwargs) -> Union[Tuple[int, int, int, int], "BaseBoundingBox"]:
+        return self._to_bbox_type("yolo", return_values, **kwargs)
 
     @classmethod
     def from_voc(
