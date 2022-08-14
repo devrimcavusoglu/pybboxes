@@ -76,7 +76,7 @@ class BoundingBox(BaseBoundingBox):
         self._validate_and_set_values(*new_values)
         return self
 
-    def scale(self, factor: float) -> "BaseBoundingBox":
+    def scale(self, factor: float) -> "BoundingBox":
         if factor <= 0:
             raise ValueError("Scaling 'factor' must be a positive value.")
         x_tl, y_tl, x_br, y_br = self.raw_values
