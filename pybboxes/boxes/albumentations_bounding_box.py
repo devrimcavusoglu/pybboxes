@@ -36,7 +36,6 @@ class AlbumentationsBoundingBox(BaseBoundingBox):
         y_tl = round(y_tl * image_height)
         x_br = round(x_br * image_width)
         y_br = round(y_br * image_height)
-        x_tl, y_tl, x_br, y_br = round(x_tl), round(y_tl), round(x_br), round(y_br)
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)

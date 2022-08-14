@@ -46,7 +46,6 @@ class VocBoundingBox(BaseBoundingBox):
 
     def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BoundingBox"]:
         x_tl, y_tl, x_br, y_br = self.values
-        x_tl, y_tl, x_br, y_br = round(x_tl), round(y_tl), round(x_br), round(y_br)
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)
