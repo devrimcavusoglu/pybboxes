@@ -160,11 +160,7 @@ class BaseBoundingBox(Box, ABC):
         box_conversion = getattr(refined_box, f"to_{self.name}")
         refined_box = box_conversion()
 
-        if self.name in NORMALIZED_BOXES:
-            values = refined_box.raw_values
-        else:
-            values = refined_box.values
-        self.__init__(*values, image_size=self.image_size, strict=self.strict)
+        self.__init__(*refined_box.values, image_size=self.image_size, strict=self.strict)
 
     def clamp(self) -> "BaseBoundingBox":
         """
