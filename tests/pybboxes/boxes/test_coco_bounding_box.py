@@ -58,6 +58,21 @@ def test_from_array(coco_bbox, image_size):
     assert coco_box.is_oob is False
 
 
+@pytest.mark.parametrize(
+    "box_values,expected_out",
+    [
+        ((270, 350, 400, 450), (270, 350, 370, 130)),
+        ((-50, -50, 342, 190), (0, 0, 292, 140)),
+        ((153, 150, 490, 580), (153, 150, 487, 330)),
+    ],
+)
+def test_clamp(box_values, expected_out, image_size):
+    coco_box = CocoBoundingBox(*box_values, image_size=image_size)
+    coco_box.clamp()
+
+    assert_almost_equal(actual=coco_box.values, desired=expected_out, ignore_numeric_type_changes=True)
+
+
 def test_scale(coco_bounding_box, scaled_coco_box, scale_factor):
     _, _, w, h = coco_bounding_box.values
 
@@ -80,9 +95,9 @@ def test_shift(coco_bounding_box, unnormalized_bbox_shift_amount):
 
 def test_oob(coco_oob_bounding_box, image_size):
     with pytest.raises(ValueError):
-        BoundingBox.from_coco(*coco_oob_bounding_box, image_size=image_size)
+        BoundingBox.from_coco(*coco_oob_bounding_box, image_size=image_size, strict=True)
 
-    coco_box = BoundingBox.from_coco(*coco_oob_bounding_box, image_size=image_size, strict=False)
+    coco_box = BoundingBox.from_coco(*coco_oob_bounding_box, image_size=image_size)
     assert coco_box.is_oob is True
 
 

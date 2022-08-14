@@ -58,6 +58,21 @@ def test_from_array(fiftyone_bbox, image_size):
     assert fo_box.is_oob is False
 
 
+@pytest.mark.parametrize(
+    "box_values,expected_out",
+    [
+        ((0.15625, 0.21875, 0.875, 0.9), (0.15625, 0.21875, 0.84375, 0.78125)),
+        ((-0.05, -0.05, 0.5, 0.5), (0.0, 0.0, 0.45, 0.45)),
+        ((0.3, 0.4, 1, 0.7), (0.3, 0.4, 0.7, 0.6)),
+    ],
+)
+def test_clamp(box_values, expected_out, image_size):
+    fo_box = FiftyoneBoundingBox(*box_values, image_size=image_size)
+    fo_box.clamp()
+
+    assert_almost_equal(actual=fo_box.values, desired=expected_out, ignore_numeric_type_changes=True)
+
+
 def test_scale(fiftyone_bounding_box, scaled_fiftyone_box, scale_factor):
     _, _, w, h = fiftyone_bounding_box.values
     image_width, image_height = fiftyone_bounding_box.image_size
@@ -84,9 +99,9 @@ def test_shift(fiftyone_bounding_box, normalized_bbox_shift_amount):
 
 def test_oob(fiftyone_oob_bounding_box, image_size):
     with pytest.raises(ValueError):
-        BoundingBox.from_fiftyone(*fiftyone_oob_bounding_box, image_size=image_size)
+        BoundingBox.from_fiftyone(*fiftyone_oob_bounding_box, image_size=image_size, strict=True)
 
-    fo_box = BoundingBox.from_fiftyone(*fiftyone_oob_bounding_box, image_size=image_size, strict=False)
+    fo_box = BoundingBox.from_fiftyone(*fiftyone_oob_bounding_box, image_size=image_size)
     assert fo_box.is_oob is True
 
 

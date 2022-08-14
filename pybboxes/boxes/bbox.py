@@ -35,7 +35,7 @@ class BoundingBox(BaseBoundingBox):
         x_br: int,
         y_br: int,
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(BoundingBox, self).__init__(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
 
@@ -139,22 +139,28 @@ class BoundingBox(BaseBoundingBox):
 
     @classmethod
     def from_albumentations(
-        cls, x_tl: float, y_tl: float, x_br: float, y_br: float, image_size: Tuple[int, int] = None, strict: bool = True
+        cls,
+        x_tl: float,
+        y_tl: float,
+        x_br: float,
+        y_br: float,
+        image_size: Tuple[int, int] = None,
+        strict: bool = False,
     ):
         return load_bbox("albumentations", values=(x_tl, y_tl, x_br, y_br), image_size=image_size, strict=strict)
 
     @classmethod
-    def from_coco(cls, x_tl: int, y_tl: int, w: int, h: int, image_size: Tuple[int, int] = None, strict: bool = True):
+    def from_coco(cls, x_tl: int, y_tl: int, w: int, h: int, image_size: Tuple[int, int] = None, strict: bool = False):
         return load_bbox("coco", values=(x_tl, y_tl, w, h), image_size=image_size, strict=strict)
 
     @classmethod
     def from_fiftyone(
-        cls, x_tl: float, y_tl: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = True
+        cls, x_tl: float, y_tl: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = False
     ):
         return load_bbox("fiftyone", values=(x_tl, y_tl, w, h), image_size=image_size, strict=strict)
 
     @classmethod
     def from_yolo(
-        cls, x_c: float, y_c: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = True
+        cls, x_c: float, y_c: float, w: float, h: float, image_size: Tuple[int, int] = None, strict: bool = False
     ):
         return load_bbox("yolo", values=(x_c, y_c, w, h), image_size=image_size, strict=strict)

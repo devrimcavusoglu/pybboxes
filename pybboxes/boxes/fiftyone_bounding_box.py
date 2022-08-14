@@ -12,7 +12,7 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         w: float,
         h: float,
         image_size: Tuple[int, int],
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(FiftyoneBoundingBox, self).__init__(x_tl, y_tl, w, h, image_size=image_size, strict=strict)
 

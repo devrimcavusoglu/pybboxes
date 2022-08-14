@@ -12,7 +12,7 @@ class CocoBoundingBox(BaseBoundingBox):
         w: int,
         h: int,
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(CocoBoundingBox, self).__init__(x_tl, y_tl, w, h, image_size=image_size, strict=strict)
 

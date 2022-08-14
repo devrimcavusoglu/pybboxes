@@ -58,6 +58,21 @@ def test_from_array(voc_bbox, image_size):
     assert voc_box.is_oob is False
 
 
+@pytest.mark.parametrize(
+    "box_values,expected_out",
+    [
+        ((270, 350, 400, 450), (270, 350, 400, 450)),
+        ((-50, -50, 342, 190), (0, 0, 342, 190)),
+        ((153, 150, 490, 580), (153, 150, 490, 480)),
+    ],
+)
+def test_clamp(box_values, expected_out, image_size):
+    voc_box = VocBoundingBox(*box_values, image_size=image_size)
+    voc_box.clamp()
+
+    assert_almost_equal(actual=voc_box.values, desired=expected_out, ignore_numeric_type_changes=True)
+
+
 def test_scale(voc_bounding_box, scaled_voc_box, scale_factor):
     x_tl, y_tl, x_br, y_br = voc_bounding_box.values
     w, h = (x_br - x_tl), (y_br - y_tl)
@@ -86,9 +101,9 @@ def test_shift(voc_bounding_box, unnormalized_bbox_shift_amount):
 
 def test_oob(voc_oob_bounding_box, image_size):
     with pytest.raises(ValueError):
-        BoundingBox.from_albumentations(*voc_oob_bounding_box, image_size=image_size)
+        BoundingBox.from_albumentations(*voc_oob_bounding_box, image_size=image_size, strict=True)
 
-    voc_box = BoundingBox.from_albumentations(*voc_oob_bounding_box, image_size=image_size, strict=False)
+    voc_box = BoundingBox.from_albumentations(*voc_oob_bounding_box, image_size=image_size)
     assert voc_box.is_oob is True
 
 

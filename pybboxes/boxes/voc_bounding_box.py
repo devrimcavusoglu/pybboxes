@@ -16,7 +16,7 @@ class VocBoundingBox(BaseBoundingBox):
         x_br: int,
         y_br: int,
         image_size: Tuple[int, int],
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(VocBoundingBox, self).__init__(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
 

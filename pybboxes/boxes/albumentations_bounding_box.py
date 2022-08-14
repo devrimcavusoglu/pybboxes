@@ -12,7 +12,7 @@ class AlbumentationsBoundingBox(BaseBoundingBox):
         x_br: float,
         y_br: float,
         image_size: Tuple[int, int],
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(AlbumentationsBoundingBox, self).__init__(x_tl, y_tl, x_br, y_br, image_size=image_size, strict=strict)
 
@@ -48,7 +48,7 @@ class AlbumentationsBoundingBox(BaseBoundingBox):
         x_br: int,
         y_br: int,
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ) -> "AlbumentationsBoundingBox":
         if image_size is None:
             raise ValueError("AlbumentationsBoundingBox requires `image_size` to scale the box values.")

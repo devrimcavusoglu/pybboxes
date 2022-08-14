@@ -58,6 +58,21 @@ def test_from_array(yolo_bbox, image_size):
     assert yolo_box.is_oob is False
 
 
+@pytest.mark.parametrize(
+    "box_values,expected_out",
+    [
+        ((0.15625, 0.21875, 0.875, 0.9), (0.296875, 0.334375, 0.59375, 0.66875)),
+        ((-0.05, -0.05, 0.5, 0.5), (0.1, 0.1, 0.2, 0.2)),
+        ((0.3, 0.4, 0.7, 0.7), (0.325, 0.4, 0.65, 0.7)),
+    ],
+)
+def test_clamp(box_values, expected_out, image_size):
+    yolo_box = YoloBoundingBox(*box_values, image_size=image_size)
+    yolo_box.clamp()
+
+    assert_almost_equal(actual=yolo_box.values, desired=expected_out, ignore_numeric_type_changes=True)
+
+
 def test_shift(yolo_bounding_box, normalized_bbox_shift_amount):
     x_c, y_c, w, h = yolo_bounding_box.values
     desired = (x_c + normalized_bbox_shift_amount[0], y_c + normalized_bbox_shift_amount[1], w, h)
@@ -82,7 +97,7 @@ def test_scale(yolo_bounding_box, scaled_yolo_box, scale_factor):
 
 def test_oob(yolo_oob_bounding_box, image_size):
     with pytest.raises(ValueError):
-        BoundingBox.from_yolo(*yolo_oob_bounding_box, image_size=image_size)
+        BoundingBox.from_yolo(*yolo_oob_bounding_box, image_size=image_size, strict=True)
 
     yolo_box = BoundingBox.from_yolo(*yolo_oob_bounding_box, image_size=image_size, strict=False)
     assert yolo_box.is_oob is True

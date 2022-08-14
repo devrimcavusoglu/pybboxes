@@ -12,7 +12,7 @@ class YoloBoundingBox(BaseBoundingBox):
         w: float,
         h: float,
         image_size: Tuple[int, int],
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(YoloBoundingBox, self).__init__(x_c, y_c, w, h, image_size=image_size, strict=strict)
 
@@ -59,7 +59,7 @@ class YoloBoundingBox(BaseBoundingBox):
         x_br: int,
         y_br: int,
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ) -> "YoloBoundingBox":
         if image_size is None:
             raise ValueError("YoloBounding box requires `image_size` to scale the box values.")

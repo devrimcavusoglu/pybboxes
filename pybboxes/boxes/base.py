@@ -64,7 +64,7 @@ class BaseBoundingBox(Box, ABC):
         v3: Union[int, float],
         v4: Union[int, float],
         image_size: Tuple[int, int] = None,
-        strict: bool = True,
+        strict: bool = False,
     ):
         self._image_size = image_size
         self.strict = strict
