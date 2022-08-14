@@ -69,10 +69,7 @@ class BaseBoundingBox(Box, ABC):
         self._image_size = image_size
         self.strict = strict
         self._is_oob = None
-        self.raw_values = (v1, v2, v3, v4)
-        v1, v2, v3, v4 = self._correct_value_types(v1, v2, v3, v4)
-        self._validate_values(v1, v2, v3, v4)
-        self._set_values(v1, v2, v3, v4)
+        self._validate_and_set_values(v1, v2, v3, v4)
         voc_values = self.to_voc(return_values=True)
         super(BaseBoundingBox, self).__init__(*voc_values)
 
