@@ -5,7 +5,7 @@
 <a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/dm/pybboxes?color=blue" alt="Monthly downloads"></a>
 <br>
 <a href="https://pypi.org/project/pybboxes"><img src="https://img.shields.io/pypi/pyversions/pybboxes" alt="Python versions"></a>
-<a href="https://github.com/devrimcavusoglu/pybboxes/actions/workflows/ci.yml"><img src="https://img.shields.io/github/workflow/status/devrimcavusoglu/pybboxes/Tests" alt="DOI"></a>
+<a href="https://github.com/devrimcavusoglu/pybboxes/actions/workflows/ci.yml"><img src="https://github.com/devrimcavusoglu/pybboxes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
 <a href="https://github.com/devrimcavusoglu/pybboxes/blob/main/LICENSE"><img src="https://img.shields.io/github/license/devrimcavusoglu/pybboxes" alt="Python versions"></a>
 </p>
 
