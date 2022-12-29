@@ -24,7 +24,7 @@ def get_version():
 
 
 _DEV_REQUIREMENTS = [
-    "black==22.3.0.",
+    "black==22.3.0",
     "click==8.0.4",
     "deepdiff==5.5.0",
     "flake8==3.9.2",
