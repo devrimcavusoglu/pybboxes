@@ -1,7 +1,7 @@
 from typing import Tuple, Union
 
-from pybboxes.types.base import BaseBoundingBox
-from pybboxes.types.bbox import BoundingBox
+from pybboxes.boxes.base import BaseBoundingBox
+from pybboxes.boxes.bbox import BoundingBox
 
 
 class FiftyoneBoundingBox(BaseBoundingBox):
@@ -12,7 +12,7 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         w: float,
         h: float,
         image_size: Tuple[int, int],
-        strict: bool = True,
+        strict: bool = False,
     ):
         super(FiftyoneBoundingBox, self).__init__(x_tl, y_tl, w, h, image_size=image_size, strict=strict)
 
@@ -20,10 +20,19 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         x_tl, y_tl, w, h = values
         if not 0 < w <= 1 or not 0 < h <= 1:
             raise ValueError("Given width and height must be in the range (0,1].")
-        elif self.strict and (not 0 <= x_tl < 1 or not 0 <= y_tl < 1):
-            raise ValueError("Given bounding box values is out of bounds.")
+        elif not 0 <= x_tl < x_tl + w <= 1 or not 0 <= y_tl < y_tl + h <= 1:
+            if self.strict:
+                raise ValueError(
+                    "Given bounding box values is out of bounds. "
+                    "To silently skip out of bounds cases pass 'strict=False'."
+                )
+            self._is_oob = True
+        else:
+            self._is_oob = False
 
     def to_voc(self, return_values: bool = False) -> Union[Tuple[int, int, int, int], "BoundingBox"]:
+        if self.is_image_size_null():
+            raise ValueError("'image_size' is required for conversion.")
         x_tl, y_tl, w, h = self.values
         image_width, image_height = self.image_size
         x_tl *= image_width
@@ -32,6 +41,7 @@ class FiftyoneBoundingBox(BaseBoundingBox):
         h *= image_height
         x_br = x_tl + w
         y_br = y_tl + h
+        x_tl, y_tl, x_br, y_br = round(x_tl), round(y_tl), round(x_br), round(y_br)
         if return_values:
             return x_tl, y_tl, x_br, y_br
         return BoundingBox(x_tl, y_tl, x_br, y_br, image_size=self.image_size, strict=self.strict)

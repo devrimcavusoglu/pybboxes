@@ -1,8 +1,8 @@
 from typing import Tuple, Union
 
-from pybboxes.types.base import BaseBoundingBox
-from pybboxes.types.bbox import load_bbox
-from pybboxes.typing import BboxType, GenericBboxType
+from pybboxes._typing import BboxType, GenericBboxType
+from pybboxes.boxes.base import BaseBoundingBox
+from pybboxes.boxes.bbox import load_bbox
 
 
 def convert_bbox(
@@ -22,7 +22,7 @@ def convert_bbox(
         from_type: (str) Type/Format of the given bounding box.
         to_type: (str) Type/Format of the resulting bounding box.
         image_size: (tuple(int,int)) Image size as (w, h) tuple, it is required if the one side of the
-            types requires scaling.
+            boxes requires scaling.
         return_values: (bool) Whether to return values as a Tuple, or BoundingBox object.
             True by default for compatibility purposes.
 

@@ -12,7 +12,7 @@ def get_long_description():
 
 
 def get_requirements():
-    with open("requirements.txt") as f:
+    with open("requirements.txt", encoding="utf8") as f:
         return f.read().splitlines()
 
 
@@ -24,10 +24,11 @@ def get_version():
 
 
 _DEV_REQUIREMENTS = [
-    "black==22.3.0.",
-    "click==8.1.3",
+    "black==22.3.0",
+    "click==8.0.4",
     "deepdiff==5.5.0",
     "flake8==3.9.2",
+    'importlib-metadata>=1.1.0,<4.3;python_version<"3.8"',
     "isort==5.9.2",
     "pytest>=7.0.1",
     "pytest-cov>=3.0.0",

@@ -1,5 +1,4 @@
-from pybboxes.functional import convert_bbox  # Backwards compatibility
-from pybboxes.types import (
+from pybboxes.boxes import (
     AlbumentationsBoundingBox,
     BoundingBox,
     CocoBoundingBox,
@@ -7,5 +6,6 @@ from pybboxes.types import (
     VocBoundingBox,
     YoloBoundingBox,
 )
+from pybboxes.functional import convert_bbox  # Backwards compatibility
 
-__version__ = "0.1.0"
+__version__ = "0.1.6"
