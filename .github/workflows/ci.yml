@@ -12,7 +12,8 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.8, 3.9, 3.10, 3.11]
+        # for Python 3.10, ref https://github.com/actions/setup-python/issues/160#issuecomment-724485470
+        python-version: [3.8, 3.9, '3.10', 3.11]
       fail-fast: false
 
     steps:
