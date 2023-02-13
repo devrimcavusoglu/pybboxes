@@ -5,7 +5,7 @@ from pybboxes import BoundingBox, CocoBoundingBox
 from tests.utils import assert_almost_equal
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def coco_bounding_box(coco_bbox, image_size):
     return BoundingBox.from_coco(*coco_bbox, image_size=image_size)
 
