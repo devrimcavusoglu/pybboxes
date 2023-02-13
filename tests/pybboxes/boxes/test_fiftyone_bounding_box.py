@@ -15,6 +15,11 @@ def fiftyone_oob_bounding_box():
     return [0.15625, 0.21875, 0.71875, 0.8854166666666666]
 
 
+@pytest.fixture
+def fiftyone_multi_array_zeroth():
+    return 0.29963209507789, 0.760571445127933, 0.024769205341163492, 0.014107127518591313
+
+
 @pytest.fixture(scope="module")
 def fiftyone_bounding_box2(fiftyone_bbox, image_size):
     np.random.seed(42)
@@ -51,11 +56,12 @@ def test_area_computations(fiftyone_bounding_box, fiftyone_bounding_box2, fiftyo
     assert_almost_equal(actual=actual_output, desired=fiftyone_area_computations_expected_output)
 
 
-def test_from_array(fiftyone_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        fo_box = FiftyoneBoundingBox.from_array(fiftyone_bbox, image_size=image_size)
-
-    assert fo_box.is_oob is False
+def test_from_array(multiple_fiftyone_bboxes, image_size, expected_multiple_bbox_shape, fiftyone_multi_array_zeroth):
+    fo_boxes = FiftyoneBoundingBox.from_array(multiple_fiftyone_bboxes, image_size=image_size)
+    assert_almost_equal(actual=fo_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=fo_boxes.flatten()[0].values, desired=fiftyone_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 @pytest.mark.parametrize(

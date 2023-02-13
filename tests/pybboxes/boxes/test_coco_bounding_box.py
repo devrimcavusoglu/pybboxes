@@ -56,11 +56,12 @@ def test_area_computations(coco_bounding_box, coco_bounding_box2, coco_area_comp
     assert_almost_equal(actual=actual_output, desired=coco_area_computations_expected_output)
 
 
-def test_from_array(coco_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        coco_box = CocoBoundingBox.from_array(coco_bbox, image_size=image_size)
-
-    assert coco_box.is_oob is False
+def test_from_array(multiple_coco_bboxes, image_size, expected_multiple_bbox_shape, coco_multi_array_zeroth):
+    coco_boxes = CocoBoundingBox.from_array(multiple_coco_bboxes, image_size=image_size)
+    assert_almost_equal(actual=coco_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=coco_boxes.flatten()[0].values, desired=coco_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -127,23 +128,3 @@ def test_to_voc(coco_bounding_box, voc_bbox):
 def test_to_yolo(coco_bounding_box, yolo_bbox):
     coco2yolo_bbox = coco_bounding_box.to_yolo()
     assert_almost_equal(actual=list(coco2yolo_bbox.values), desired=yolo_bbox)
-
-
-def test_from_array(multiple_coco_bboxes, image_size, expected_multiple_bbox_shape, coco_multi_array_zeroth):
-    coco_boxes = CocoBoundingBox.from_array(multiple_coco_bboxes, image_size=image_size)
-    assert_almost_equal(actual=coco_boxes.shape, desired=expected_multiple_bbox_shape)
-    assert_almost_equal(
-        actual=coco_boxes.flatten()[0].values, desired=coco_multi_array_zeroth, ignore_numeric_type_changes=True
-    )
-
-
-def test_area_computations(coco_bounding_box, coco_bounding_box2, coco_area_computations_expected_output):
-    actual_output = {
-        "total_area": coco_bounding_box.area + coco_bounding_box2.area,
-        "union": coco_bounding_box + coco_bounding_box2,
-        "intersection": coco_bounding_box * coco_bounding_box2,
-        "iou": coco_bounding_box.iou(coco_bounding_box2),
-        "ratio": coco_bounding_box / coco_bounding_box2,
-        "difference": coco_bounding_box - coco_bounding_box2,
-    }
-    assert_almost_equal(actual=actual_output, desired=coco_area_computations_expected_output)

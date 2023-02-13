@@ -15,6 +15,11 @@ def albumentations_oob_bounding_box():
     return [0.15625, 0.21875, 0.875, 1.1041666666666667]
 
 
+@pytest.fixture
+def albumentations_multi_array_zeroth():
+    return 0.18727005942368125, 0.4753571532049581, 0.5619230133529087, 0.5352678187964783
+
+
 @pytest.fixture(scope="module")
 def albumentations_bounding_box2(albumentations_bbox, image_size):
     np.random.seed(42)
@@ -58,11 +63,14 @@ def test_area_computations(
     assert_almost_equal(actual=actual_output, desired=albumentations_area_computations_expected_output)
 
 
-def test_from_array(albumentations_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        alb_box = AlbumentationsBoundingBox.from_array(albumentations_bbox, image_size=image_size)
-
-    assert alb_box.is_oob is False
+def test_from_array(
+    multiple_albumentations_bboxes, image_size, expected_multiple_bbox_shape, albumentations_multi_array_zeroth
+):
+    alb_boxes = AlbumentationsBoundingBox.from_array(multiple_albumentations_bboxes, image_size=image_size)
+    assert_almost_equal(actual=alb_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        alb_boxes.flatten()[0].values, albumentations_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 @pytest.mark.parametrize(

@@ -15,6 +15,11 @@ def voc_oob_bounding_box():
     return [100, 105, 560, 530]
 
 
+@pytest.fixture()
+def voc_multi_array_zeroth():
+    return 102, 179, 433, 457
+
+
 @pytest.fixture(scope="module")
 def voc_bounding_box2(voc_bbox, image_size):
     np.random.seed(42)
@@ -51,11 +56,12 @@ def test_area_computations(voc_bounding_box, voc_bounding_box2, voc_area_computa
     assert_almost_equal(actual=actual_output, desired=voc_area_computations_expected_output)
 
 
-def test_from_array(voc_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        voc_box = VocBoundingBox.from_array(voc_bbox, image_size=image_size)
-
-    assert voc_box.is_oob is False
+def test_from_array(multiple_voc_bboxes, image_size, expected_multiple_bbox_shape, voc_multi_array_zeroth):
+    voc_boxes = VocBoundingBox.from_array(multiple_voc_bboxes, image_size=image_size)
+    assert_almost_equal(actual=voc_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=voc_boxes.flatten()[0].values, desired=voc_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 @pytest.mark.parametrize(
