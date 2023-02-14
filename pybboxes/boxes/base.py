@@ -199,17 +199,35 @@ class BaseBoundingBox(Box, ABC):
         pass
 
     @classmethod
-    def from_array(cls, ar: Union[Tuple, List, np.ndarray], **kwargs):
+    def from_array_vectorize(cls, ar: np.ndarray):
+        constructor = cls.from_array
+        vconstructor = np.vectorize(constructor)
+        return vconstructor(ar)
+
+    @classmethod
+    def from_array(cls, ar: Union[Tuple, List, np.ndarray], **kwargs) -> Union[np.ndarray, "BaseBoundingBox"]:
         """
-        This method is intended to be "final", and should not be overridden in child classes.
+        Takes input values containing at least a single bbox values. Input can be multidimensional
+        array as long as the last dimension (-1) has length of 4, i.e for any array as input, the shape
+        should look like (x,y,z,4) and the output is of shape (x,y,z).
+
+        Args:
+            ar: Input values as a tuple or array. If the input is an array, the dimension is preserved as is
+                and each bounding box values is converted to the `BoundingBox` object.
+            **kwargs: Additional keyword arguments for construction, see :py:meth:`BoundingBox.__init__`
+
+        Notes:
+            This method is intended to be "final", and should not be overridden in child classes.
+
+        Returns:
+            Either a `BoundingBox` object constructed from input values or list of `BoundingBox` objects
+            as an array.
         """
-        warnings.warn(
-            "The functionality of the `from_array()` method is changed from only supporting a single box values to "
-            "support (arbitrary) n-dimensional array of box values starting from 0.2 onward "
-            "requiring Python3.8 or higher.",
-            FutureWarning,
-            stacklevel=find_stack_level(),
-        )
-        if len(ar) != 4:
-            raise ValueError(f"Given array must be length of 4, got length {len(ar)}.")
-        return cls(*ar, **kwargs)
+        if not isinstance(ar, np.ndarray):
+            ar = np.array(ar)
+        if ar.shape[-1] != 4:
+            raise ValueError(f"Given input array must have bounding box values at dim -1 as 4, got shape {ar.shape}.")
+        if ar.ndim == 1:
+            return cls(*ar, **kwargs)
+        vf = np.vectorize(cls.from_array, signature="(n) -> ()", excluded={"image_size", "strict"})
+        return vf(ar, **kwargs)

@@ -22,6 +22,11 @@ def coco_bounding_box2(coco_bbox, image_size):
     return BoundingBox.from_coco(*coco_bbox2, image_size=image_size)
 
 
+@pytest.fixture
+def coco_multi_array_zeroth():
+    return 102, 435, 20, 18
+
+
 @pytest.fixture()
 def scaled_coco_box():
     return 145, 362, 228, 83
@@ -51,11 +56,12 @@ def test_area_computations(coco_bounding_box, coco_bounding_box2, coco_area_comp
     assert_almost_equal(actual=actual_output, desired=coco_area_computations_expected_output)
 
 
-def test_from_array(coco_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        coco_box = CocoBoundingBox.from_array(coco_bbox, image_size=image_size)
-
-    assert coco_box.is_oob is False
+def test_from_array(multiple_coco_bboxes, image_size, expected_multiple_bbox_shape, coco_multi_array_zeroth):
+    coco_boxes = CocoBoundingBox.from_array(multiple_coco_bboxes, image_size=image_size)
+    assert_almost_equal(actual=coco_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=coco_boxes.flatten()[0].values, desired=coco_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 @pytest.mark.parametrize(

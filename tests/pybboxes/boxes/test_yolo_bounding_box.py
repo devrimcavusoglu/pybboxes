@@ -27,6 +27,11 @@ def scaled_yolo_box():
     return 0.4046875, 0.840625, 0.3557630992844818, 0.17235727791422098
 
 
+@pytest.fixture()
+def yolo_multi_array_zeroth():
+    return 0.22472407130841748, 0.5704285838459496, 0.024769205341163492, 0.014107127518591313
+
+
 @pytest.fixture(scope="function")
 def yolo_area_computations_expected_output():
     return {
@@ -51,11 +56,12 @@ def test_area_computations(yolo_bounding_box, yolo_bounding_box2, yolo_area_comp
     assert_almost_equal(actual=actual_output, desired=yolo_area_computations_expected_output)
 
 
-def test_from_array(yolo_bbox, image_size):
-    with pytest.warns(FutureWarning):
-        yolo_box = YoloBoundingBox.from_array(yolo_bbox, image_size=image_size)
-
-    assert yolo_box.is_oob is False
+def test_from_array(multiple_yolo_bboxes, image_size, expected_multiple_bbox_shape, yolo_multi_array_zeroth):
+    yolo_boxes = YoloBoundingBox.from_array(multiple_yolo_bboxes, image_size=image_size)
+    assert_almost_equal(actual=yolo_boxes.shape, desired=expected_multiple_bbox_shape)
+    assert_almost_equal(
+        actual=yolo_boxes.flatten()[0].values, desired=yolo_multi_array_zeroth, ignore_numeric_type_changes=True
+    )
 
 
 @pytest.mark.parametrize(
