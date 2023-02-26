@@ -1,11 +1,10 @@
-from typing import Union
+from typing import Union, Sequence
 
 import numpy as np
-from numpy._typing import ArrayLike
 
 
-IntegerBox: Union[ArrayLike[int, int], ArrayLike[ArrayLike[int, int]]]
-FloatBox: Union[ArrayLike[float, float], ArrayLike[ArrayLike[float, float]]]
+IntegerBox: Union[Sequence[int], Sequence[Sequence[int]]]
+FloatBox: Union[Sequence[float], Sequence[Sequence[float]]]
 
 
 class Box:
