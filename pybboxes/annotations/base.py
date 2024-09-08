@@ -16,7 +16,6 @@ class Annotation:
     annotation_id = None
     segmentations: List[int] = None
 
-
 class Annotations(ABC):
     def __init__(self, class_names: List[str]):
         self.class_names = class_names
@@ -52,3 +51,20 @@ class Annotations(ABC):
 
     def id2label(self, label_id: int):
         return self.class_names[label_id]
+    
+    def persist_as_yolo(self, export_dir: str):
+        pass
+
+    def persist_as_coco(self, export_dir: str):
+        pass
+
+    def persist_as_pascal_voc(self, export_dir: str):
+        pass
+
+    def persist_as_albumentations(self, export_dir: str):
+        pass
+
+    def persist_as_fiftyone(self, export_dir:str):
+        pass
+
+
