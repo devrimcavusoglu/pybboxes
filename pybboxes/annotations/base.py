@@ -29,7 +29,7 @@ class Annotations:
             raise ValueError(f"Annotation type should be one of: {valid_types}")
         
         self._annotation_type = annotation_type
-        self._class_name: List[str] = []
+        self._class_names: List[str] = []
         self._objects: dict[str, List[Annotation]] = dict()
 
     @property
@@ -48,6 +48,60 @@ class Annotations:
     def id2label(self, label_id: int):
         return self._class_names[label_id]
     
+    def load_from_voc(self, annotations_directory: str):
+        """
+        initializes Annotations from xml annotations in pascal voc format
+
+        Parameters
+        ----------
+        annotations_directory : str
+            provide path to directory that houses xml annotations in pascal voc format
+        """
+        if self._annotation_type != 'voc':
+            raise ValueError(f'this instance of Annotations can only process {self._annotation_type} annotation file(s)')
+
+        if not os.path.exists(annotations_directory):
+            raise FileNotFoundError(f"{annotations_directory} doesn't exists")
+        
+        for filename in os.listdir(annotations_directory):
+            if filename.endswith('.xml'):
+                tree = ET.parse(os.path.join(annotations_directory, filename))
+                root = tree.getroot()
+
+                image_name = root.find('filename').text
+                size = root.find('size')
+                img_w = int(size.find('width').text)
+                img_h = int(size.find('height').text)
+
+                for obj in root.findall('object'):
+                    label_name = obj.find('name').text
+                    if label_name not in self._class_names:
+                        self._class_names.append(label_name)
+                    label_id = self.label2id(label_name)
+
+                    bbox = obj.find('bndbox')
+                    xmin = float(bbox.find('xmin').text)
+                    ymin = float(bbox.find('ymin').text)
+                    xmax = float(bbox.find('xmax').text)
+                    ymax = float(bbox.find('ymax').text)
+
+                    bbox = BoundingBox.from_voc(xmin, ymin, xmax, ymax, image_size=(img_w, img_h))
+
+                    annotatation = Annotation(
+                        box=bbox,
+                        label_id=label_id,
+                        label_name=label_name,
+                        annotation_type='voc',
+                        image_width=img_w,
+                        image_height=img_h
+                    )
+
+                    if image_name in self._objects:
+                        self._objects[image_name].append(annotatation)
+                    else:
+                        self._objects[image_name] = [annotatation]
+
+
     def load_from_coco(self, json_path:str):
         """
         initializes Annotations from coco json file
@@ -107,19 +161,25 @@ class Annotations:
 
     def persist_as_voc(self, export_dir: str, n_channels: int=3):
         os.makedirs(export_dir, exist_ok=True)
-        for annotation in self._objects:
-            filename = os.path.splitext(annotation.associated_image_name)[0] + '.xml'
+        for image_name in self._objects.keys():
+            filename = os.path.splitext(image_name)[0] + '.xml'
             filepath = os.path.join(export_dir, filename)
 
-            # if the xml file aready exists, we just have to append the bounding box in the existing xml file
-            # this is because given image annotation may contain multiple bounding boxes
-            # but we will make a assumption that if annotation file already exits, every relevant metadata
-            # already exists, so we are just going to append the bouding box in the xml file
+            root = ET.Element("annotation")
+            ET.SubElement(root, "filename").text = image_name
+            size = ET.SubElement(root, "size")
 
-            if os.path.exists(filepath):
-                tree = ET.parse(filepath)
-                root = tree.getroot()
+            if len(self._objects[image_name]) == 0:
+                raise ValueError(f'no associated annotations for {image_name}')
+            
+            # get the first sample from list because it contains image dimensions
+            sample_annotation = self._objects[image_name][0]
+            ET.SubElement(size, "width").text = str(sample_annotation.image_width)
+            ET.SubElement(size, "height").text = str(sample_annotation.image_height)
+            ET.SubElement(size, "depth").text = str(n_channels)
+            del sample_annotation # after we have extracted image width and height, we donot need it anymore
 
+            for annotation in self._objects[image_name]:
                 obj = ET.SubElement(root, "object")
                 ET.SubElement(obj, "name").text = annotation.label_name
                 ET.SubElement(obj, "pose").text = "Unspecified"
@@ -127,41 +187,18 @@ class Annotations:
                 ET.SubElement(obj, "difficult").text = "0"
 
                 bbox = ET.SubElement(obj, "bndbox")
-                voc_box = box.to_voc().raw_values
+                voc_box = annotation.box.to_voc().raw_values
                 ET.SubElement(bbox, "xmin").text = str(int(voc_box[0]))
                 ET.SubElement(bbox, "ymin").text = str(int(voc_box[1]))
                 ET.SubElement(bbox, "xmax").text = str(int(voc_box[2]))
                 ET.SubElement(bbox, "ymax").text = str(int(voc_box[3]))
 
-                tree.write(filepath) # after appending additional bounding box data, persist changes to the file
-
-            else: # the xml annotation doesn't exists, so we have to create file structure from the scratch
-                root = ET.Element("annotation")
-                ET.SubElement(root, "filename").text = annotation.associated_image_name
-                size = ET.SubElement(root, "size")
-                ET.SubElement(size, "width").text = str(annotation.image_width)
-                ET.SubElement(size, "height").text = str(annotation.image_height)
-                ET.SubElement(size, "depth").text = str(n_channels)
-
-                for box in annotation.boxes:
-                    obj = ET.SubElement(root, "object")
-                    ET.SubElement(obj, "name").text = annotation.label_name
-                    ET.SubElement(obj, "pose").text = "Unspecified"
-                    ET.SubElement(obj, "truncated").text = "0"
-                    ET.SubElement(obj, "difficult").text = "0"
-
-                    bbox = ET.SubElement(obj, "bndbox")
-                    voc_box = box.to_voc().raw_values
-                    ET.SubElement(bbox, "xmin").text = str(int(voc_box[0]))
-                    ET.SubElement(bbox, "ymin").text = str(int(voc_box[1]))
-                    ET.SubElement(bbox, "xmax").text = str(int(voc_box[2]))
-                    ET.SubElement(bbox, "ymax").text = str(int(voc_box[3]))
-
-                tree = ET.ElementTree(root)
-                tree.write(filepath)
+            tree = ET.ElementTree(root)
+            tree.write(filepath)
     
 if __name__ == "__main__":
-    coco = Annotations(annotation_type='coco')
-    coco.load_from_coco(json_path='Images/annotations_coco.json')
+    coco = Annotations(annotation_type='voc')
+    coco.load_from_voc('voc_test')
+    # coco.load_from_coco(json_path='Images/annotations_coco.json')
     coco.persist_as_yolo(export_dir='yolo_test')
     # coco.persist_as_voc(export_dir='voc_test')
