@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Union, Dict
 import xml.etree.ElementTree as ET
+import json
 import os
 
 import numpy as np
@@ -195,10 +196,59 @@ class Annotations:
 
             tree = ET.ElementTree(root)
             tree.write(filepath)
-    
+
+    def persist_as_coco(self, export_file: str):
+        coco_data = {
+            "images": [],
+            "categories": [],
+            "annotations": []
+        }
+
+        # embed categorical information
+        for i, name in enumerate(self._class_names):
+            coco_data['categories'].append({
+                "id": i,
+                "name": name,
+                "supercategory": "none"
+            })
+
+        image_id = 0
+        ann_id = 0
+        for image_name in self._objects.keys():
+            for annotation in self._objects[image_name]:
+                # embed image metadata
+                coco_data['images'].append(
+                    {
+                        "id": image_id,
+                        "file_name": image_name,
+                        "width": annotation.image_width,
+                        "height": annotation.image_height
+                    }
+                )
+
+                # embed annotation metadata
+                coco_box = annotation.box.to_coco().raw_values
+                coco_data['annotations'].append(
+                    {
+                        "id": ann_id,
+                        "image_id": image_id,
+                        "category_id": annotation.label_id,
+                        "bbox": coco_box,
+                        "area": coco_box[2] * coco_box[3],
+                        "iscrowd": 0
+                    }
+                )
+
+                ann_id += 1
+            image_id += 1
+
+        with open(export_file, 'w', encoding='utf-8') as f:
+            json.dump(coco_data, f)
+            
 if __name__ == "__main__":
     coco = Annotations(annotation_type='voc')
     coco.load_from_voc('voc_test')
     # coco.load_from_coco(json_path='Images/annotations_coco.json')
-    coco.persist_as_yolo(export_dir='yolo_test')
+    # coco.persist_as_yolo(export_dir='yolo_test')
+    coco.persist_as_coco(export_file='coco_test.json')
     # coco.persist_as_voc(export_dir='voc_test')
