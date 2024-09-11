@@ -1,9 +1,43 @@
 import json
 import os
 from typing import Dict, List, Optional, Union
-
+import struct
 import yaml
 
+def get_image_size(file_path:str):
+    """
+    Return (width, height) for a given img file content - no external
+    dependencies except the os and struct modules from Python core
+    """
+    with open(file_path, 'rb') as fhandle:
+        head = fhandle.read(24)
+        if len(head) != 24:
+            return None
+        if head.startswith(b'\x89PNG\r\n\x1a\n'):
+            check = struct.unpack('>i', head[16:20])[0]
+            if check != 0x0d0a1a0a:
+                return None
+            width, height = struct.unpack('>ii', head[16:24])
+        elif head[:2] == b'\xff\xd8':
+            try:
+                fhandle.seek(0)  # Read 0xff next
+                size = 2
+                ftype = 0
+                while not 0xc0 <= ftype <= 0xcf:
+                    fhandle.seek(size, 1)
+                    byte = fhandle.read(1)
+                    while ord(byte) == 0xff:
+                        byte = fhandle.read(1)
+                    ftype = ord(byte)
+                    size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                # We are at a SOFn block
+                fhandle.seek(1, 1)  # Skip `precision' byte.
+                height, width = struct.unpack('>HH', fhandle.read(4))
+            except Exception:
+                return None
+        else:
+            return None
+        return width, height
 
 class IndentfulDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
