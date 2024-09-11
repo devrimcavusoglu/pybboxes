@@ -9,6 +9,7 @@ import numpy as np
 from pycocotools.coco import COCO
 
 from pybboxes.boxes import BoundingBox
+from pybboxes.utils.io import get_image_size
 
 
 @dataclass
@@ -146,8 +147,62 @@ class Annotations:
             else:
                 self._objects[associated_img_filename] = [annotation]
 
+    def load_from_yolo(self, labels_dir: str, images_dir: str, classes_file: str):
+        if not os.path.exists(classes_file):
+            raise FileNotFoundError(f"{classes_file} doesn't exist")
+        
+        if not os.path.exists(labels_dir):
+            raise NotADirectoryError(f'{labels_dir} is not a valid directory')
+        
+        if not os.path.exists(images_dir):
+            raise NotADirectoryError(f'{images_dir} is not a valid directory')
+        
+        with open(classes_file, 'r') as f:
+            self._class_names = [line.strip() for line in f.readlines()]
+
+        for filename in os.listdir(labels_dir):
+            if filename.endswith('.txt'):
+                if 'classes' in filename:
+                    continue # if this is classes label, we have to skip as it donot contains bounding boxes data
+
+                image_name = filename.replace('.txt', '.jpg') # we are assuming jpg extension
+                if not os.path.exists(os.path.join(images_dir, image_name)):
+                    image_name = filename.replace('.jpg', '.jpeg') # see if image with jpeg extension exits
+                    if not os.path.exists(image_name):
+                        raise FileNotFoundError(f'{image_name} not found in images directory')
+                    
+                image_size = get_image_size(os.path.join(images_dir, image_name)) # we need for yolo format
+
+                with open(os.path.join(labels_dir, filename), 'r') as f:
+                    for line in f:
+                        parts = line.strip().split()
+                        label_id = int(parts[0]) # extract the class/label id
+                        x_c, y_c, w, h = map(float, parts[1:5])
+
+                        bbox = BoundingBox.from_yolo(x_c, y_c, w, h, image_size=image_size)
+
+                        annotation = Annotation(
+                            box=bbox,
+                            label_id=label_id,
+                            label_name=self.id2label(label_id),
+                            annotation_type='yolo',
+                            image_width=image_size[0],
+                            image_height=image_size[1]
+                        )
+
+                        if image_name not in self._objects.keys():
+                            self._objects[image_name] = [annotation]
+                        else:
+                            self._objects[image_name].append(annotation)
+
     def persist_as_yolo(self, export_dir: str):
         os.makedirs(export_dir, exist_ok=True)
+
+        # write class file
+        with open(os.path.join(export_dir, 'classes.txt'), 'w') as f:
+            for cls in self._class_names:
+                f.write(f'{cls}\n')
+
         for image_name in self._objects.keys():
 
             filename = f'{os.path.splitext(image_name)[0]}.txt'
@@ -246,9 +301,11 @@ class Annotations:
             json.dump(coco_data, f)
             
 if __name__ == "__main__":
-    coco = Annotations(annotation_type='voc')
-    coco.load_from_voc('voc_test')
-    # coco.load_from_coco(json_path='Images/annotations_coco.json')
+    coco = Annotations(annotation_type='yolo')
+    coco.load_from_yolo('yolo_test', classes_file='yolo_test/classes.txt', images_dir='Images')
+    # # coco.load_from_coco(json_path='Images/annotations_coco.json')
     # coco.persist_as_yolo(export_dir='yolo_test')
     coco.persist_as_coco(export_file='coco_test.json')
     # coco.persist_as_voc(export_dir='voc_test')
+
+    # print(get_image_size('Images/raccoon-108_jpg.rf.8fd1233050048c41a47356c1a366ec87.jpg'))
