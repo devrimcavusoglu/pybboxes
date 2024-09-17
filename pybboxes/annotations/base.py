@@ -97,24 +97,24 @@ class Annotations:
     def load_from_fiftyone(self):
         raise NotImplementedError
     
-    def load_from_voc(self, annotations_directory: str):
+    def load_from_voc(self, labels_dir: str):
         """
         initializes Annotations from xml annotations in pascal voc format
 
         Parameters
         ----------
-        annotations_directory : str
+        labels_dir : str
             provide path to directory that houses xml annotations in pascal voc format
         """
         if self._annotation_type != 'voc':
             raise ValueError(f'this instance of Annotations can only process {self._annotation_type} annotation file(s)')
 
-        if not os.path.exists(annotations_directory):
-            raise FileNotFoundError(f"{annotations_directory} doesn't exists")
+        if not os.path.exists(labels_dir):
+            raise FileNotFoundError(f"{labels_dir} doesn't exists")
         
-        for filename in os.listdir(annotations_directory):
+        for filename in os.listdir(labels_dir):
             if filename.endswith('.xml'):
-                tree = ET.parse(os.path.join(annotations_directory, filename))
+                tree = ET.parse(os.path.join(labels_dir, filename))
                 root = tree.getroot()
 
                 image_name = root.find('filename').text
