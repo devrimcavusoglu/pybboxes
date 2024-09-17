@@ -14,6 +14,8 @@ from pybboxes.utils.io import get_image_size
 
 @dataclass
 class Annotation:
+    # This is the format in which 'Annotations' class store the bounding box details internally
+    # Single instance can store the info of only one bounding box
     # https://www.immersivelimit.com/tutorials/create-coco-annotations-from-scratch
     box: BoundingBox
     label_id: int
@@ -26,6 +28,18 @@ class Annotation:
 
 class Annotations:
     def __init__(self, annotation_type:str):
+        """Initializes Annotations of defined format
+
+        Parameters
+        ----------
+        annotation_type : str
+            should be within (yolo, coco, voc, albumentations and fiftyone)
+
+        Raises
+        ------
+        ValueError
+            if annotation_type is not of supported type
+        """        
         valid_types = ('yolo', 'coco', 'voc', 'albumentations', 'fiftyone')
         if annotation_type not in valid_types:
             raise ValueError(f"Annotation type should be one of: {valid_types}")
@@ -36,6 +50,13 @@ class Annotations:
 
     @property
     def names_mapping(self):
+        """lists all the classes in dictionary format
+
+        Returns
+        -------
+        dict
+            in {class_name:class_id, ...} format
+        """        
         return {name: id_ for id_, name in enumerate(self._class_names)}
 
     # def __getitem__(self, subscript: Union[int, List[int], slice]) -> Union[Annotation, List[Annotation]]:
@@ -45,10 +66,36 @@ class Annotations:
     #         return self._objects[subscript]
 
     def label2id(self, name: str):
+        """returns class id for the given class name
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        -------
+        int
+        """        
         return self.names_mapping[name]
 
     def id2label(self, label_id: int):
+        """returns class name for the given class label
+
+        Parameters
+        ----------
+        label_id : int
+
+        Returns
+        -------
+        str
+        """        
         return self._class_names[label_id]
+    
+    def load_from_albumentations(self):
+        raise NotImplementedError
+    
+    def load_from_fiftyone(self):
+        raise NotImplementedError
     
     def load_from_voc(self, annotations_directory: str):
         """
@@ -103,10 +150,9 @@ class Annotations:
                     else:
                         self._objects[image_name] = [annotatation]
 
-
     def load_from_coco(self, json_path:str):
         """
-        initializes Annotations from coco json file
+        initializes Annotations from coco annotation file (json files)
 
         Parameters
         ----------
@@ -148,6 +194,17 @@ class Annotations:
                 self._objects[associated_img_filename] = [annotation]
 
     def load_from_yolo(self, labels_dir: str, images_dir: str, classes_file: str):
+        """load annoations in yolo format
+
+        Parameters
+        ----------
+        labels_dir : str
+            immediate parent directory that houses all the image annoatations
+        images_dir : str
+            immediate parent directory that houses all the images (we need corresponding images to labels to extract image dimensions)
+        classes_file : str
+            path to classes.txt that lists all the class labels used in the annotation
+        """        
         if not os.path.exists(classes_file):
             raise FileNotFoundError(f"{classes_file} doesn't exist")
         
@@ -196,6 +253,16 @@ class Annotations:
                             self._objects[image_name].append(annotation)
 
     def persist_as_yolo(self, export_dir: str):
+        """writes loaded annotations in yolo format
+
+        Parameters
+        ----------
+        export_dir : str
+            path to directory where all the annotation files should be written
+        
+        this will write annotation files for all the corresponding images and also 'classes.txt' that defines all the class
+        used for the annotation
+        """        
         os.makedirs(export_dir, exist_ok=True)
 
         # write class file
@@ -216,6 +283,13 @@ class Annotations:
                     f.write(f"{' '.join(yolo_box)}\n")
 
     def persist_as_voc(self, export_dir: str, n_channels: int=3):
+        """writes loaded annotations in voc format
+
+        Parameters
+        ----------
+        export_dir : str
+            path to directory where all the annotation files should be written
+        """     
         os.makedirs(export_dir, exist_ok=True)
         for image_name in self._objects.keys():
             filename = os.path.splitext(image_name)[0] + '.xml'
@@ -253,6 +327,13 @@ class Annotations:
             tree.write(filepath)
 
     def persist_as_coco(self, export_file: str):
+        """writes loaded annotation in coco format (json format)
+
+        Parameters
+        ----------
+        export_file : str
+            name (or path) for the annotation file
+        """        
         coco_data = {
             "images": [],
             "categories": [],
@@ -300,12 +381,8 @@ class Annotations:
         with open(export_file, 'w', encoding='utf-8') as f:
             json.dump(coco_data, f)
             
-if __name__ == "__main__":
-    coco = Annotations(annotation_type='yolo')
-    coco.load_from_yolo('yolo_test', classes_file='yolo_test/classes.txt', images_dir='Images')
-    # # coco.load_from_coco(json_path='Images/annotations_coco.json')
-    # coco.persist_as_yolo(export_dir='yolo_test')
-    coco.persist_as_coco(export_file='coco_test.json')
-    # coco.persist_as_voc(export_dir='voc_test')
-
-    # print(get_image_size('Images/raccoon-108_jpg.rf.8fd1233050048c41a47356c1a366ec87.jpg'))
+    def persist_as_albumentations(self):
+        raise NotImplementedError
+    
+    def persist_as_fiftyone(self):
+        raise NotImplementedError
