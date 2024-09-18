@@ -33,6 +33,7 @@ _DEV_REQUIREMENTS = [
     "pytest>=7.0.1",
     "pytest-cov>=3.0.0",
     "pytest-timeout>=2.1.0",
+    "pytest-depends>=1.0.1",
 ]
 
 extras = {
