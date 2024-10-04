@@ -31,15 +31,15 @@ def test_import_from_albumentations():
     with pytest.raises(NotImplementedError):
         anns.load_from_albumentations()
 
-def test_persist_as_fiftyone():
+def test_save_as_fiftyone():
     anns = Annotations(annotation_type='albumentations')
     with pytest.raises(NotImplementedError):
-        anns.persist_as_fiftyone()
+        anns.save_as_fiftyone()
 
-def test_persist_as_albumentations():
+def test_save_as_albumentations():
     anns = Annotations(annotation_type='fiftyone')
     with pytest.raises(NotImplementedError):
-        anns.persist_as_albumentations()
+        anns.save_as_albumentations()
 
 def test_annotations_initialization():
     # annotation_type should be either: yolo, coco, voc, albumentations or fiftyone
@@ -67,7 +67,7 @@ def test_import_from_coco():
 
     # randomly test the accuracy of annotations here
     
-@pytest.mark.depends(on=['test_persist_as_yolo'])
+@pytest.mark.depends(on=['test_save_as_yolo'])
 def test_import_from_yolo():
     anns = Annotations(annotation_type='yolo')
     anns.load_from_yolo(labels_dir=sample_yolo_dataset_path, images_dir=sample_images, classes_file=str(os.path.join(sample_yolo_dataset_path, 'classes.txt')))
@@ -75,7 +75,7 @@ def test_import_from_yolo():
     assert (type(anns.names_mapping)) == dict
     assert anns.names_mapping == dict(raccoons=0, raccoon=1)
 
-@pytest.mark.depends(on=['test_persist_as_voc'])
+@pytest.mark.depends(on=['test_save_as_voc'])
 def test_import_from_voc():
     anns = Annotations(annotation_type='voc')
     anns.load_from_voc(labels_dir=sample_voc_dataset_path)
@@ -87,9 +87,9 @@ def test_import_from_voc():
                                                  # when converting from coco format to voc format
 
 @pytest.mark.depends(on=['test_import_from_coco'])
-def test_persist_as_coco():
+def test_save_as_coco():
     persist_coco_path = str(os.path.join('tests', 'pybboxes', 'annotations', 'persist_as_coco_test.json'))
-    sample_coco_dataset.persist_as_coco(export_file=persist_coco_path)
+    sample_coco_dataset.save_as_coco(export_file=persist_coco_path)
 
     coco = COCO(persist_coco_path)
 
@@ -99,14 +99,14 @@ def test_persist_as_coco():
 
 
 @pytest.mark.depends(on=['test_import_from_coco'])
-def test_persist_as_yolo():
-    sample_coco_dataset.persist_as_yolo(sample_yolo_dataset_path)
+def test_save_as_yolo():
+    sample_coco_dataset.save_as_yolo(sample_yolo_dataset_path)
 
     assert count_files(sample_yolo_dataset_path, extensions=['.txt'])['txt'] == 197 # 196 annotation files, 1 classes.txt file
 
 @pytest.mark.depends(on=['test_import_from_coco'])
-def test_persist_as_voc():
-    sample_coco_dataset.persist_as_voc(sample_voc_dataset_path)
+def test_save_as_voc():
+    sample_coco_dataset.save_as_voc(sample_voc_dataset_path)
 
     assert count_files(sample_voc_dataset_path, extensions=['.xml'])['xml'] == 196 # 196 annotation files
 

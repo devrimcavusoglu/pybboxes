@@ -261,7 +261,7 @@ class Annotations:
                         else:
                             self._objects[image_name].append(annotation)
 
-    def persist_as_yolo(self, export_dir: str):
+    def save_as_yolo(self, export_dir: str):
         """writes loaded annotations in yolo format
 
         Parameters
@@ -291,7 +291,7 @@ class Annotations:
                     yolo_box.insert(0, str(annotation.label_id))  # append class/label id at the beginning
                     f.write(f"{' '.join(yolo_box)}\n")
 
-    def persist_as_voc(self, export_dir: str, n_channels: int = 3):
+    def save_as_voc(self, export_dir: str, n_channels: int = 3):
         """writes loaded annotations in voc format
 
         Parameters
@@ -335,7 +335,7 @@ class Annotations:
             tree = ET.ElementTree(root)
             tree.write(filepath)
 
-    def persist_as_coco(self, export_file: str):
+    def save_as_coco(self, export_file: str):
         """writes loaded annotation in coco format (json format)
 
         Parameters
@@ -382,8 +382,8 @@ class Annotations:
         with open(export_file, "w", encoding="utf-8") as f:
             json.dump(coco_data, f)
 
-    def persist_as_albumentations(self):
+    def save_as_albumentations(self):
         raise NotImplementedError
 
-    def persist_as_fiftyone(self):
+    def save_as_fiftyone(self):
         raise NotImplementedError
