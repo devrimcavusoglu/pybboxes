@@ -131,3 +131,7 @@ dmypy.json
 # IDE
 .idea/
 .vscode/
+
+# fixtures for annotation file conversion testing
+testing_data_coco
+testing_data_images

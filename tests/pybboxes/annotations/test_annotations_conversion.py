@@ -3,14 +3,15 @@ from pybboxes.annotations import Annotations
 import os
 import shutil
 import glob
+from functools import partial
 from collections import Counter
 from pycocotools.coco import COCO
+from huggingface_hub import HfApi, hf_hub_download
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 
-def count_files(directory, extensions):
-    all_files = []
-    for ext in extensions:
-        all_files.extend(glob.glob(f"{directory}/*{ext}"))
-    return Counter(file.split('.')[-1] for file in all_files)
+# hugging face repo from where we will be downloading our fixture for unit testing
+repo_id = "gauravparajuli/coco_test_set_pybboxes"
 
 sample_yolo_dataset_path = str(os.path.join('tests', 'pybboxes', 'annotations', 'testing_data_yolo'))
 sample_voc_dataset_path = str(os.path.join('tests', 'pybboxes', 'annotations', 'testing_data_voc'))
@@ -18,6 +19,20 @@ sample_coco_dataset_path = str(os.path.join('tests', 'pybboxes', 'annotations', 
 persist_coco_test_path = str(os.path.join('tests', 'pybboxes', 'annotations', 'persist_as_coco_test.json')) # file generated during test_persist_as_coco
 
 sample_images = str(os.path.join('tests', 'pybboxes', 'annotations', 'testing_data_images'))
+
+def downloadfile(filename, local_dir):
+    hf_hub_download(
+        repo_id=repo_id,
+        repo_type='dataset',
+        filename=filename,
+        local_dir=local_dir,
+    )
+
+def count_files(directory, extensions):
+    all_files = []
+    for ext in extensions:
+        all_files.extend(glob.glob(f"{directory}/*{ext}"))
+    return Counter(file.split('.')[-1] for file in all_files)
 
 sample_coco_dataset = Annotations(annotation_type='coco')
 
@@ -96,8 +111,6 @@ def test_save_as_coco():
     assert len(coco.getImgIds()) == 196
     assert len(coco.getCatIds()) == 2
 
-
-
 @pytest.mark.depends(on=['test_import_from_coco'])
 def test_save_as_yolo():
     sample_coco_dataset.save_as_yolo(sample_yolo_dataset_path)
@@ -112,6 +125,23 @@ def test_save_as_voc():
 
 @pytest.fixture(scope='session', autouse=True)
 def cleanup():
+    # setup code here
+    api = HfApi()
+    files = api.list_repo_files(repo_id=repo_id, repo_type='dataset')
+    files = [file for file in files if ('.json' in file or '.jpg' in file)] # filter .gitattributes and README.md
+
+    annotationfilename = files.pop(0) # annotations_coco.json
+    downloadfile(annotationfilename, local_dir=os.path.dirname(sample_coco_dataset_path)) # download annotation file in a separate folder
+
+    # now download test dataset images
+    with ThreadPoolExecutor() as executor:
+        partial_downloadfile = partial(downloadfile, local_dir=sample_images)
+        futures = [executor.submit(partial_downloadfile, filename) for filename in files]
+        with tqdm(total=len(futures), desc='downloading test set for unit testing', unit='file') as pbar:
+            for future in as_completed(futures):
+                pbar.set_description_str = future.result()
+                pbar.update(1) # update the progress bar for each completed download
+
     yield
 
     # clean up the folders that we created after all the tests have ran

@@ -34,6 +34,7 @@ _DEV_REQUIREMENTS = [
     "pytest-cov>=3.0.0",
     "pytest-timeout>=2.1.0",
     "pytest-depends>=1.0.1",
+    "huggingface-hub>=0.25.0"
 ]
 
 extras = {
