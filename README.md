@@ -231,8 +231,8 @@ anns = Annotations(annotation_type='coco')
 anns.load_from_coco(json_path='./validation.json')
 ```
 
-### 3. Persisting annotations to different format
-#### 3.1 Persisting annotations to yolo format
+### 3. Saving annotations to different format
+#### 3.1 Saving annotations to yolo format
 As every image data has its own corresponding annotation file in yolo format, you have to provide path to `export_dir` where all the annotation files will be written. 
 
 ```python
@@ -242,11 +242,11 @@ anns = Annotations(annotation_type='coco') # just for the demonstration purpose
 
 anns.load_from_coco(json_path='./validation.json') # we could have loaded the annotation data from other format as well
 
-anns.persist_as_yolo(export_dir='./labels')
+anns.save_as_yolo(export_dir='./labels')
 ```
 This will create all the required annotation files (in yolo format) in given directory. Additionally, it will also create `classes.txt` in the given folder which will list all the class labels used for the annotation.
 
-#### 3.2 Persisting annotations to voc format
+#### 3.2 Saving annotations to voc format
 Just like yolo format, in voc format, every image data has also its own corresponding annotation file. So, you have to provide path to `export_dir` where all the annotation files will be written.
 
 ```python
@@ -256,11 +256,11 @@ anns = Annotations(annotation_type='coco') # just for the demonstration purpose
 
 anns.load_from_coco(json_path='./validation.json') # we could have loaded the annotation data from other format as well
 
-anns.persist_as_voc(export_dir='./labels')
+anns.save_as_voc(export_dir='./labels')
 ```
 
 
-#### 3.3 Persisting annotations to coco format
+#### 3.3 Saving annotations to coco format
 To export annotations in coco format, you just have to provide name (or path) of the output file (in json format) via `export_file`.
 
 ```python
@@ -270,7 +270,7 @@ anns = Annotations(annotation_type='voc') # just for the demonstration purpose
 
 anns.load_from_voc(labels_dir='./labels') # we could have loaded the annotation data from other format as well
 
-anns.persist_as_coco(export_file='./validation.json')
+anns.save_as_coco(export_file='./validation.json')
 ```
 
 ## Contributing
