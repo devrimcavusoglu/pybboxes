@@ -183,6 +183,96 @@ pbf.compute_area(coco_bbox, bbox_type="coco")  # 12
 pbf.compute_area(voc_bbox, bbox_type="voc")  # 4
 ```
 
+## Annotation file conversion
+`pybboxes` now supports the conversion of annotation file(s) across different annotation formats. (yolo, voc and coco are currently supported)
+
+This is a 3 step process.
+
+### 1. Instantiate the Annotations class
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='yolo')
+```
+
+**Important** you have to explicitly declare `annotation_type` beforehand. post declaration, *you will be only able to load annotation in declared format* but you will be able to export to other annotation formats.
+
+### 2. Load the annotations file
+After you have instantiated the `Annotations` class declaring `annotation_type`, you can now load the annotations using appropriate method of the `Annotations` class. 
+
+#### 2.1 Load from yolo
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='yolo')
+
+anns.load_from_yolo(labels_dir='./labels', images_dir='./images', classes_file='./classes.txt')
+```
+
+As yolo normalizes the bounding box metadata, path to corresponding  images directory must be provided (via `images_dir`) so that physical dimension of image data can be inferred.
+
+Also, path to `classes_file` (usually classes.txt) should be provided that lists all the class labels that is used for the annotation. Without this, `pybboxes` will fail to assign appropriate class labels when converting across different annotations format.
+
+#### 2.2 Load from voc
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='voc')
+
+anns.load_from_voc(labels_dir='./labels')
+```
+
+#### 2.3 Load from coco
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='coco')
+
+anns.load_from_coco(json_path='./validation.json')
+```
+
+### 3. Saving annotations to different format
+#### 3.1 Saving annotations to yolo format
+As every image data has its own corresponding annotation file in yolo format, you have to provide path to `export_dir` where all the annotation files will be written. 
+
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='coco') # just for the demonstration purpose
+
+anns.load_from_coco(json_path='./validation.json') # we could have loaded the annotation data from other format as well
+
+anns.save_as_yolo(export_dir='./labels')
+```
+This will create all the required annotation files (in yolo format) in given directory. Additionally, it will also create `classes.txt` in the given folder which will list all the class labels used for the annotation.
+
+#### 3.2 Saving annotations to voc format
+Just like yolo format, in voc format, every image data has also its own corresponding annotation file. So, you have to provide path to `export_dir` where all the annotation files will be written.
+
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='coco') # just for the demonstration purpose
+
+anns.load_from_coco(json_path='./validation.json') # we could have loaded the annotation data from other format as well
+
+anns.save_as_voc(export_dir='./labels')
+```
+
+
+#### 3.3 Saving annotations to coco format
+To export annotations in coco format, you just have to provide name (or path) of the output file (in json format) via `export_file`.
+
+```python
+from pybboxes.annotations import Annotations
+
+anns = Annotations(annotation_type='voc') # just for the demonstration purpose
+
+anns.load_from_voc(labels_dir='./labels') # we could have loaded the annotation data from other format as well
+
+anns.save_as_coco(export_file='./validation.json')
+```
+
 ## Contributing
 
 ### Installation
