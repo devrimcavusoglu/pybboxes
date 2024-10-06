@@ -106,9 +106,7 @@ class Annotations:
             provide path to directory that houses xml annotations in pascal voc format
         """
         if self._annotation_type != "voc":
-            raise TypeError(
-                f"this instance of Annotations can only process {self._annotation_type} annotation file(s)"
-            )
+            raise TypeError(f"this instance of Annotations can only process {self._annotation_type} annotation file(s)")
 
         if not os.path.exists(labels_dir):
             raise FileNotFoundError(f"{labels_dir} doesn't exists")
@@ -161,9 +159,7 @@ class Annotations:
             provide path to coco annotation  file in json format
         """
         if self._annotation_type != "coco":
-            raise TypeError(
-                f"this instance of Annotations can only process {self._annotation_type} annotation file(s)"
-            )
+            raise TypeError(f"this instance of Annotations can only process {self._annotation_type} annotation file(s)")
 
         if not os.path.exists(json_path):
             raise FileNotFoundError(f"{json_path} doesn't exists")
@@ -210,9 +206,7 @@ class Annotations:
         """
 
         if self._annotation_type != "yolo":
-            raise TypeError(
-                f"this instance of Annotations can only process {self._annotation_type} annotation file(s)"
-            )
+            raise TypeError(f"this instance of Annotations can only process {self._annotation_type} annotation file(s)")
 
         if not os.path.exists(classes_file):
             raise FileNotFoundError(f"{classes_file} doesn't exist")

@@ -1,7 +1,6 @@
-from typing import Union, Sequence
+from typing import Sequence, Union
 
 import numpy as np
-
 
 IntegerBox: Union[Sequence[int], Sequence[Sequence[int]]]
 FloatBox: Union[Sequence[float], Sequence[Sequence[float]]]
