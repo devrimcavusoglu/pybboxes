@@ -58,8 +58,8 @@ jobs:
 
       - name: Lint with flake8 and black
         run: |
-          python -m tests.run_code_style check
+          python -m scripts.run_code_style check
 
       - name: Run tests.
         run: |
-          python -m tests.run_tests
+          python -m scripts.run_tests
