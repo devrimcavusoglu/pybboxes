@@ -1,5 +1,5 @@
 from pybboxes.functional import compute_area, convert_bbox
-from scripts.utils import assert_almost_equal
+from tests.utils import assert_almost_equal
 
 
 def test_convert_albumentations2voc(albumentations_bbox, voc_bbox, image_size):
