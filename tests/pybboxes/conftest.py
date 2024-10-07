@@ -10,8 +10,8 @@ from typing import Optional
 import numpy as np
 import pytest
 
+from scripts.utils import load_json
 from tests.pybboxes import EXPECTED_OUTPUTS
-from tests.utils import load_json
 
 
 @pytest.fixture

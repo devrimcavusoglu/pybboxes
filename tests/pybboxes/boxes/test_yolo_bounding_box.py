@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from pybboxes import BoundingBox, YoloBoundingBox
-from tests.utils import assert_almost_equal
+from scripts.utils import assert_almost_equal
 
 
 @pytest.fixture(scope="function")
