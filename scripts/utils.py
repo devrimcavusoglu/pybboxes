@@ -5,12 +5,6 @@ import shutil
 import sys
 
 
-def load_json(path: str):
-    with open(path, "r") as jf:
-        content = json.load(jf)
-    return content
-
-
 def shell(command, exit_status=0):
     """
     Run command through shell and return exit status if exit status of command run match with given exit status.
