@@ -30,6 +30,17 @@ Light weight toolkit for bounding boxes providing conversion between bounding bo
 - **w:** width
 - **c:** center
 
+
+## News 🔥
+
+* 2024/10/07 - [Annotations](#annotation-file-conversion) are supported for YOLO, COCO and VOC formats.
+
+## Roadmap 🛣️
+
+- [X] Annotation file support.
+- [ ] (Upcoming) 3D Bounding Box support.
+- [ ] (Upcoming) Polygon support.
+
 ### Important Notice
 Support for Python<3.8 will be dropped starting version `0.2` though the development for Python3.6 and Python3.7 may 
 continue where it will be developed under version `0.1.x` for future versions. This may introduce; however, certain 
@@ -287,17 +298,17 @@ pip install -e .[dev]
 
 To tests simply run.
 
-    python tests/run_tests.py
+    python -m tests.run_tests
 
 ### Code Style
 
 To check code style,
 
-    python tests/run_code_style.py check
+    python -m tests.run_code_style check
 
 To format codebase,
 
-    python tests/run_code_style.py format
+    python -m tests.run_code_style format
 
 ## License
 
